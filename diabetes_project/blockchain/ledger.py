@@ -1,70 +1,114 @@
 import json
 import time
 import hashlib
+import os
 from diabetes_project.blockchain.zk_proof import ZKVerifier
 
+CHAIN_FILE = "diabetes_project/blockchain/chain.json"
+DIFFICULTY = 4  # Number of leading zeros required for PoW
+
 class HealthBlock:
-    def __init__(self, index, data, previous_hash):
+    def __init__(self, index, data, previous_hash, nonce=0, hash=None, timestamp=None):
         self.index = index
-        self.timestamp = time.time()
+        self.timestamp = timestamp if timestamp else time.time()
         self.data = data # Dictionary containing model update hash or alert details
         self.previous_hash = previous_hash
-        self.hash = self.compute_hash()
+        self.nonce = nonce
+        self.hash = hash if hash else self.compute_hash()
 
     def compute_hash(self):
+        # Include nonce in hash calculation
         block_string = json.dumps(self.__dict__, sort_keys=True)
         return hashlib.sha256(block_string.encode()).hexdigest()
+
+    def mine_block(self, difficulty):
+        target = "0" * difficulty
+        while self.hash[:difficulty] != target:
+            self.nonce += 1
+            # Recompute hash with new nonce
+            # Optimization: We only need to re-hash the changing part, but for simplicity we re-dump
+            # To avoid infinite recursion or complex logic in compute_hash, we construct the string manually here or just rely on compute_hash
+            # simpler approach:
+            self.hash = self.compute_hash()
+            
+        print(f"Block Mined! Nonce: {self.nonce}, Hash: {self.hash}")
 
 class BlockchainLedger:
     def __init__(self):
         self.chain = []
-        self.create_genesis_block()
+        if os.path.exists(CHAIN_FILE):
+             self.load_chain()
+        else:
+            self.create_genesis_block()
 
     def create_genesis_block(self):
         genesis_block = HealthBlock(0, {"event": "Genesis Block"}, "0")
+        genesis_block.mine_block(DIFFICULTY)
         self.chain.append(genesis_block)
+        self.save_chain()
 
-class SmartContract:
-    """
-    Simulates a 'Chaincode' that executes logic on-chain.
-    Novelty: Automated, decentralized validation of drift alerts.
-    """
-    @staticmethod
-    def execute(data):
-        if data.get("event") == "Drift Alert":
-            # Logic: If drift > 0.8, automatically trigger a 'SeverityEscalation' event
-            if data.get("error", 0) > 0.8:
-                print("⚡ SMART CONTRACT TRIGGERED: High Severity Drift Detected! Auto-Escalating...")
-                return {"contract_action": "ESCALATE_TO_SPECIALIST", "reason": "Severe Drift > 0.8"}
-        return None
+    def save_chain(self):
+        chain_data = [block.__dict__ for block in self.chain]
+        os.makedirs(os.path.dirname(CHAIN_FILE), exist_ok=True)
+        with open(CHAIN_FILE, 'w') as f:
+            json.dump(chain_data, f, indent=4)
+
+    def load_chain(self):
+        try:
+            with open(CHAIN_FILE, 'r') as f:
+                chain_data = json.load(f)
+                self.chain = [HealthBlock(**data) for data in chain_data]
+            print(f"Loaded {len(self.chain)} blocks from valid chain file.")
+        except (json.JSONDecodeError, FileNotFoundError):
+             print("Chain file corrupted or missing. Creating new chain.")
+             self.create_genesis_block()
+
+
+    class SmartContract:
+        """
+        Simulates chaincode execution for automated validation and escalation logic.
+        """
+        @staticmethod
+        def execute(data):
+            if data.get("event") == "Drift Alert":
+                # Logic: If drift > 0.8, automatically trigger a 'SeverityEscalation' event
+                if data.get("error", 0) > 0.8:
+                    print("Smart Contract Triggered: High Severity Drift Detected. Auto-Escalating.")
+                    return {"contract_action": "ESCALATE_TO_SPECIALIST", "reason": "Severe Drift > 0.8"}
+            return None
 
     def add_block(self, data, proof=None):
         """
         Adds a block to the chain.
-        If data is a 'Model Update', it REQUIRES a valid ZK-Proof.
+        If data is a 'Model Update', it requires a valid ZK-Proof.
         """
         if data.get("event") == "Model Update":
             if not proof:
-                print("BLOCK REJECTED: Model Update requires ZK-Proof.")
+                print("Block Rejected: Model Update requires ZK-Proof.")
                 return None
             
             valid, msg = ZKVerifier.verify_proof(proof)
             if not valid:
-                print(f"BLOCK REJECTED: {msg}")
+                print(f"Block Rejected: {msg}")
                 return None
             
             # Store proof in the block
             data["zk_proof"] = proof
-            print("✅ ZK-Proof Verified. Committing Block...")
+            print("ZK-Proof Verified. Committing Block...")
 
         # Execute Smart Contract Logic
-        contract_result = SmartContract.execute(data)
+        contract_result = self.SmartContract.execute(data)
         if contract_result:
             data["smart_contract_execution"] = contract_result
 
         previous_block = self.chain[-1]
         new_block = HealthBlock(len(self.chain), data, previous_block.hash)
+        
+        print("Mining new block...")
+        new_block.mine_block(DIFFICULTY)
+        
         self.chain.append(new_block)
+        self.save_chain()
         return new_block
 
     def verify_chain(self):
@@ -85,3 +129,4 @@ if __name__ == "__main__":
     
     print(f"Chain valid? {ledger.verify_chain()}")
     print([block.data for block in ledger.chain])
+

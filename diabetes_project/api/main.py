@@ -18,8 +18,8 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-# Global State (Prototype Hack: Single Patient)
-# Enable Real Data Mode by default for demonstration
+# Global State
+# Enable Real Data Mode by default
 council = DiagnosticCouncil("P001", use_real_data=True)
 zk_prover = ZKProver("P001")
 
@@ -49,16 +49,23 @@ async def websocket_endpoint(websocket: WebSocket):
             # 1. Run Simulation Step
             status = council.client.monitor(day)
             
-            # 2. Add ZK-Proof if Drift Detected (Simulated Trigger for Demo)
+            # 2. Add ZK-Proof if Drift Detected
             zk_proof = None
             if status['alert']:
-                # Generate a "Proof of Training" (Simulated)
+                # Generate a Proof of Training
                 zk_proof = zk_prover.generate_proof({"gfr_decay": 0.5}, "data_hash_sample")
                 council.ledger.add_block(status, proof=zk_proof)
             
             # 3. Predict Propagation
-            current_drifts = torch.tensor([0.1, 0.8, 0.2, 0.1, 0.1]) # Mock
+            current_drifts = torch.tensor([0.1, 0.8, 0.2, 0.1, 0.1]) 
             predictions = council.graph_model(current_drifts)
+            
+            # STITCH UI LOGIC: Antigravity decides the theme
+            design_mode = "zen" # Default calm state
+            if status['alert']:
+                design_mode = "crisis" # Red/Aggressive
+            elif predictions.get('kidney', 0) > 0.5:
+                 design_mode = "warning" # Yellow/Caution
             
             # 4. Construct Payload
             payload = {
@@ -71,7 +78,8 @@ async def websocket_endpoint(websocket: WebSocket):
                 "alert": status,
                 "propagation": predictions,
                 "latest_block_hash": council.ledger.chain[-1].hash if council.ledger.chain else "0",
-                "zk_proof": zk_proof 
+                "zk_proof": zk_proof,
+                "design_mode": design_mode 
             }
             
             await manager.broadcast(json.dumps(payload))
