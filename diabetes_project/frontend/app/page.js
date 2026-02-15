@@ -3,6 +3,9 @@
 import { useEffect, useState, useRef } from 'react';
 import Scene from '../components/Scene';
 import HUD from '../components/HUD';
+import Snitch from '../components/Snitch';
+import Antigravity from '../components/Antigravity';
+
 import { AnimatePresence, motion } from 'framer-motion';
 
 export default function Home() {
@@ -11,6 +14,8 @@ export default function Home() {
     const [blockchain, setBlockchain] = useState([]);
     const [alert, setAlert] = useState(null);
     const [ragContext, setRagContext] = useState(null);
+    const [processing, setProcessing] = useState(false); // For Antigravity UI
+
 
     const ws = useRef(null);
 
@@ -25,7 +30,7 @@ export default function Home() {
             // 1. Update Vitals
             setVitals(data.vitals);
 
-            // 2. Update Drift Levels for 3D Organ Glow
+            // 2. Update Drift & Design Mode
             // Mock mapping from alert/propagation to drift 0-1
             if (data.propagation) {
                 setDrifts({
@@ -33,7 +38,12 @@ export default function Home() {
                     heart: data.propagation.heart || 0,
                     retina: data.propagation.retina || 0
                 });
+                // Trigger Antigravity Animation
+                setProcessing(true);
+                setTimeout(() => setProcessing(false), 800);
             }
+
+
 
             // 3. Update Blockchain (Prepend new block)
             if (data.latest_block_hash && data.latest_block_hash !== "0") {
@@ -52,6 +62,8 @@ export default function Home() {
             if (data.alert && data.alert.alert) {
                 setAlert(data.alert);
                 fetchExplanation(data.propagation);
+            } else {
+                setAlert(null);
             }
         };
 
@@ -74,22 +86,52 @@ export default function Home() {
 
     return (
         <main className="w-full h-screen bg-black overflow-hidden relative">
+
+
             <Scene vitals={vitals} drifts={drifts} onOrganClick={(organ) => console.log(organ)} />
+
+            {/* AI Agents Layer */}
+            <Snitch alert={alert} />
+            <Antigravity processing={processing} />
+
+            {/* Connection Beam (Conditional) */}
+            <AnimatePresence>
+                {alert && (
+                    <svg className="absolute inset-0 w-full h-full pointer-events-none z-40">
+                        <motion.line
+                            x1="10%" y1="10%" // Adjust based on Antigravity position
+                            x2="90%" y2="10%" // Adjust based on Snitch position
+                            initial={{ pathLength: 0, opacity: 0 }}
+                            animate={{ pathLength: 1, opacity: 1 }}
+                            exit={{ opacity: 0 }}
+                            stroke="url(#beamGradient)"
+                            strokeWidth="2"
+                            strokeDasharray="5,5"
+                        />
+                        <defs>
+                            <linearGradient id="beamGradient" x1="0%" y1="0%" x2="100%" y2="0%">
+                                <stop offset="0%" stopColor="#a855f7" />
+                                <stop offset="100%" stopColor="#ef4444" />
+                            </linearGradient>
+                        </defs>
+                    </svg>
+                )}
+            </AnimatePresence>
 
             <HUD vitals={vitals} drifts={drifts} blockchain={blockchain} />
 
-            {/* RAG Context Popup (The "Extravagant" Hologram) */}
+            {/* RAG Context Popup */}
             <AnimatePresence>
                 {alert && ragContext && (
                     <motion.div
                         initial={{ opacity: 0, scale: 0.8, y: 50 }}
                         animate={{ opacity: 1, scale: 1, y: 0 }}
                         exit={{ opacity: 0, scale: 0.8 }}
-                        className="absolute bottom-10 right-10 w-[30rem] bg-black/80 backdrop-blur-xl border border-cyan-500/50 rounded-2xl p-6 shadow-[0_0_50px_rgba(0,255,255,0.2)]"
+                        className="absolute bottom-10 right-10 w-[30rem] bg-black/80 backdrop-blur-xl border border-cyan-500/50 rounded-2xl p-6 shadow-[0_0_50px_rgba(0,255,255,0.2)] z-50"
                     >
                         <div className="flex justify-between items-start mb-4">
                             <div>
-                                <h2 className="text-xl font-bold text-cyan-400">⚠️ CAUSAL PROPAGATION DETECTED</h2>
+                                <h2 className="text-xl font-bold text-cyan-400">CAUSAL PROPAGATION DETECTED</h2>
                                 <p className="text-xs text-cyan-200/70 font-mono mt-1">AI AGENT: DIAGNOSTIC COUNCIL</p>
                             </div>
                             <button onClick={() => setAlert(null)} className="text-gray-400 hover:text-white">x</button>
