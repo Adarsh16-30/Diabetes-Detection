@@ -10,13 +10,12 @@ export const StitchButton = ({ children, onClick, variant = "primary", className
             whileHover={{ scale: 1.03 }}
             whileTap={{ scale: 0.97 }}
             className={`relative overflow-hidden px-6 py-3 rounded-xl font-medium transition-all duration-300 ${variant === "primary"
-                    ? "bg-gradient-to-r from-cyan-500 to-blue-500 text-white shadow-[0_0_20px_rgba(6,182,212,0.5)] hover:shadow-[0_0_30px_rgba(6,182,212,0.7)]"
-                    : "bg-white/10 backdrop-blur-md text-cyan-100 border border-white/10 hover:bg-white/20"
+                ? "bg-gradient-to-r from-cyan-500 to-blue-500 text-white shadow-[0_0_20px_rgba(6,182,212,0.5)] hover:shadow-[0_0_30px_rgba(6,182,212,0.7)]"
+                : "bg-white/10 backdrop-blur-md text-cyan-100 border border-white/10 hover:bg-white/20"
                 } ${className}`}
             onClick={onClick}
         >
             <span className="relative z-10">{children}</span>
-            {/* Ripple effect could be added here, but framer-motion tap scale covers the tactile feel */}
         </motion.button>
     );
 };
@@ -107,41 +106,22 @@ export const StitchModal = ({ isOpen, onClose, title, children }) => {
 };
 
 // --- 14. Subtle Background Motion & 2. Page Transitions: StitchLayout ---
-export const StitchLayout = ({ children }) => {
+export const StitchLayout = ({ children, theme = 'dark' }) => {
     return (
-        <div className="min-h-screen bg-[#050505] text-white overflow-hidden relative selection:bg-cyan-500/30">
-            {/* Background Blobs */}
-            <div className="fixed inset-0 pointer-events-none overflow-hidden">
-                <motion.div
-                    animate={{
-                        x: [0, 100, 0],
-                        y: [0, -50, 0],
-                        scale: [1, 1.2, 1]
-                    }}
-                    transition={{ duration: 20, repeat: Infinity, ease: "linear" }}
-                    className="absolute top-[-20%] left-[-10%] w-[50rem] h-[50rem] bg-purple-900/20 rounded-full blur-[120px]"
-                />
-                <motion.div
-                    animate={{
-                        x: [0, -100, 0],
-                        y: [0, 50, 0],
-                        scale: [1, 1.1, 1]
-                    }}
-                    transition={{ duration: 25, repeat: Infinity, ease: "linear" }}
-                    className="absolute bottom-[-20%] right-[-10%] w-[40rem] h-[40rem] bg-cyan-900/20 rounded-full blur-[100px]"
-                />
+        <div className={`min-h-screen font-sans antialiased text-gray-100 transition-colors duration-500 relative overflow-hidden ${theme === 'light' ? 'bg-gray-50' : 'bg-black'}`}>
+            {/* Dynamic Background */}
+            <div className="absolute inset-0 z-0 pointer-events-none">
+                <div className="absolute top-[-20%] left-[-10%] w-[60%] h-[60%] rounded-full bg-cyan-900/20 blur-[150px] animate-pulse-slow" />
+                <div className="absolute bottom-[-20%] right-[-10%] w-[60%] h-[60%] rounded-full bg-blue-900/20 blur-[150px] animate-pulse-slow delay-1000" />
             </div>
 
-            {/* Content Transition */}
-            <motion.main
-                initial={{ opacity: 0, y: 20 }}
-                animate={{ opacity: 1, y: 0 }}
-                exit={{ opacity: 0, y: -20 }}
-                transition={{ duration: 0.6, ease: [0.22, 1, 0.36, 1] }} // Custom cubic bezier for smooth feel
-                className="relative z-10"
+            <motion.div
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                className="relative z-10 w-full h-full"
             >
                 {children}
-            </motion.main>
+            </motion.div>
         </div>
     );
 };
@@ -162,5 +142,19 @@ export const StitchCounter = ({ value, label }) => {
                 </motion.span>
             </div>
         </div>
+    );
+};
+
+// --- 13. Theme Switching: ThemeToggle ---
+export const ThemeToggle = ({ theme, toggleTheme }) => {
+    return (
+        <motion.button
+            whileHover={{ scale: 1.1, rotate: 180 }}
+            whileTap={{ scale: 0.9 }}
+            onClick={toggleTheme}
+            className="p-3 rounded-full bg-white/10 backdrop-blur-md border border-white/10 text-cyan-400 hover:bg-white/20 hover:text-cyan-200 transition-all shadow-[0_0_15px_rgba(34,211,238,0.3)]"
+        >
+            {theme === 'dark' ? '🌙' : '☀️'}
+        </motion.button>
     );
 };

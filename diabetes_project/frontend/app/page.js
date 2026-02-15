@@ -1,153 +1,191 @@
 "use client";
 
-import { useEffect, useState, useRef } from 'react';
-import Scene from '../components/Scene';
-import HUD from '../components/HUD';
-import { StitchLayout, StitchCard, ThemeToggle } from '../components/StitchUI';
+import { useEffect, useState } from 'react';
+import AnalyticsDashboard from '../components/AnalyticsDashboard';
+import { StitchLayout, StitchCard, ThemeToggle, StitchInput, StitchButton, StitchModal } from '../components/StitchUI';
 import { AnimatePresence, motion } from 'framer-motion';
 
 export default function Home() {
-    const [theme, setTheme] = useState('dark');
-    const [vitals, setVitals] = useState({ gfr: 90, retina: 250, hrv: 50 });
-    const [drifts, setDrifts] = useState({ kidney: 0, heart: 0, retina: 0 });
-    const [blockchain, setBlockchain] = useState([]);
-    const [alert, setAlert] = useState(null);
-    const [ragContext, setRagContext] = useState(null);
-    const [processing, setProcessing] = useState(false);
+    const [patientId, setPatientId] = useState(null); // User must enter this
+    const [theme, setTheme] = useState('light');
+    const [analysisData, setAnalysisData] = useState(null);
 
+    // Auth Input State
+    const [inputId, setInputId] = useState("P001");
+    const [showGuide, setShowGuide] = useState(false);
+    const [uploading, setUploading] = useState(false);
+    const [loadingAnalysis, setLoadingAnalysis] = useState(false);
 
-    const ws = useRef(null);
-
+    // Fetch Full Analysis when Patient ID is set
     useEffect(() => {
-        // Connect to Python Backend
-        ws.current = new WebSocket("ws://localhost:8000/ws/stream");
+        if (patientId) {
+            runAnalysis(patientId);
+        }
+    }, [patientId]);
 
-        ws.current.onmessage = (event) => {
-            const data = JSON.parse(event.data);
-            console.log("Stream Data:", data);
-
-            // 1. Update Vitals
-            setVitals(data.vitals);
-
-            // 2. Update Drift & Design Mode
-            // Mock mapping from alert/propagation to drift 0-1
-            if (data.propagation) {
-                setDrifts({
-                    kidney: data.propagation.kidney || 0,
-                    heart: data.propagation.heart || 0,
-                    retina: data.propagation.retina || 0
-                });
-                // Trigger Antigravity Animation
-                setProcessing(true);
-                setTimeout(() => setProcessing(false), 800);
-            }
-
-
-
-            // 3. Update Blockchain (Prepend new block)
-            if (data.latest_block_hash && data.latest_block_hash !== "0") {
-                setBlockchain(prev => {
-                    // Avoid dupes
-                    if (prev.length > 0 && prev[0].hash === data.latest_block_hash) return prev;
-                    return [{
-                        index: prev.length,
-                        hash: data.latest_block_hash,
-                        data: { zk_proof: data.zk_proof }
-                    }, ...prev].slice(0, 10);
-                });
-            }
-
-            // 4. Handle Alerts (Trigger RAG)
-            if (data.alert && data.alert.alert) {
-                setAlert(data.alert);
-                fetchExplanation(data.propagation);
-            } else {
-                setAlert(null);
-            }
-        };
-
-        return () => ws.current?.close();
-    }, []);
-
-    const fetchExplanation = async (propagationData) => {
+    const runAnalysis = async (id) => {
+        setLoadingAnalysis(true);
         try {
-            const res = await fetch("http://localhost:8000/api/explain", {
-                method: "POST",
-                headers: { "Content-Type": "application/json" },
-                body: JSON.stringify({ patient_id: "P001", organ_drifts: propagationData })
-            });
-            const context = await res.json();
-            setRagContext(context);
+            const res = await fetch(`http://localhost:8000/api/analyze/${id}`, { method: 'POST' });
+            const data = await res.json();
+            setAnalysisData(data);
         } catch (e) {
-            console.error("RAG Failed", e);
+            console.error("Analysis Failed", e);
+            alert("Failed to load diagnostic analysis.");
+        } finally {
+            setLoadingAnalysis(false);
         }
     };
 
+    const handleUpload = async (e) => {
+        const file = e.target.files[0];
+        if (!file || !inputId) return;
+
+        setUploading(true);
+        const formData = new FormData();
+        formData.append("file", file);
+
+        try {
+            const res = await fetch(`http://localhost:8000/api/upload_data/${inputId}`, {
+                method: "POST",
+                body: formData
+            });
+            const result = await res.json();
+            if (result.status === "success") {
+                alert(`Data uploaded! ${result.rows} records loaded. Starting Analysis...`);
+                setPatientId(inputId); // Triggers useEffect -> runAnalysis
+            } else {
+                alert("Upload failed: " + result.message);
+            }
+        } catch (err) {
+            console.error(err);
+            alert("Upload Error");
+        } finally {
+            setUploading(false);
+        }
+    };
+
+    if (!patientId) {
+        return (
+            <div className="min-h-screen bg-gray-50 flex items-center justify-center relative overflow-hidden bg-[url('https://images.unsplash.com/photo-1550751827-4bd374c3f58b?q=80&w=2070&auto=format&fit=crop')] bg-cover bg-center">
+                <div className="absolute inset-0 bg-white/70 backdrop-blur-sm" />
+
+                {/* Decorative Elements */}
+                <div className="absolute top-0 left-0 w-full h-full overflow-hidden pointer-events-none">
+                    <div className="absolute top-[-10%] left-[-10%] w-[40%] h-[40%] rounded-full bg-cyan-500/20 blur-[100px]" />
+                    <div className="absolute bottom-[-10%] right-[-10%] w-[40%] h-[40%] rounded-full bg-blue-600/20 blur-[100px]" />
+                </div>
+
+                <StitchCard className="w-full max-w-lg border-white/40 bg-white/60 backdrop-blur-md shadow-2xl relative z-10 p-8">
+                    <div className="text-center mb-10">
+                        <div className="inline-block px-3 py-1 mb-4 rounded-full bg-gradient-to-r from-cyan-500/10 to-blue-500/10 border border-cyan-500/20 text-cyan-600 text-xs font-mono tracking-wider">
+                            MEDICAL DIGITAL TWIN v2.0
+                        </div>
+                        <h1 className="text-4xl md:text-5xl font-bold text-gray-900 mb-2 tracking-tight">
+                            Diabetes Detection
+                        </h1>
+                        <p className="text-gray-600 text-sm font-light">
+                            Advanced Diabetic Complication Modeling & Analytics
+                        </p>
+                    </div>
+
+                    <div className="space-y-6">
+                        {/* Patient ID Input */}
+                        <div className="relative group">
+                            <StitchInput
+                                label="PATIENT ID"
+                                placeholder="Enter P001, P002..."
+                                value={inputId}
+                                onChange={(e) => setInputId(e.target.value)}
+                                className="bg-white/50 border-gray-200 focus:border-cyan-500/50 transition-all text-lg tracking-wider text-gray-900 placeholder-gray-400"
+                            />
+                        </div>
+
+                        {/* Action Buttons */}
+                        <div className="grid grid-cols-2 gap-4">
+                            <StitchButton
+                                className="w-full bg-white/30 hover:bg-white/50 border border-gray-200 text-gray-700"
+                                onClick={() => setShowGuide(true)}
+                            >
+                                📜 Patent Info
+                            </StitchButton>
+
+                            <label className="cursor-pointer relative group block w-full">
+                                <div className="absolute inset-0 bg-gradient-to-r from-cyan-500/10 to-blue-500/10 rounded-xl blur opacity-0 group-hover:opacity-100 transition-all duration-500" />
+                                <div className="relative bg-white/30 border border-gray-200 rounded-xl p-3 text-center text-cyan-700 hover:text-cyan-900 transition-colors h-full flex items-center justify-center font-medium text-sm gap-2">
+                                    <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12" /></svg>
+                                    {uploading ? "Uploading..." : "Upload CSV"}
+                                </div>
+                                <input type="file" accept=".csv" className="hidden" onChange={handleUpload} disabled={!inputId} />
+                            </label>
+                        </div>
+
+                        <StitchButton
+                            className="w-full py-4 text-lg font-bold bg-gradient-to-r from-cyan-600 to-blue-600 hover:from-cyan-500 hover:to-blue-500 border-none shadow-lg shadow-cyan-900/20 text-white"
+                            onClick={() => setPatientId(inputId)}
+                        >
+                            Data Dashboard &rarr;
+                        </StitchButton>
+                    </div>
+                </StitchCard>
+
+                {/* Guide Modal */}
+                <StitchModal isOpen={showGuide} onClose={() => setShowGuide(false)} title="Implemented Patents">
+                    <div className="space-y-4 text-sm text-gray-600">
+                        <div className="p-4 bg-white/40 rounded-xl border border-gray-200">
+                            <h3 className="text-cyan-600 font-bold mb-1 flex items-center gap-2">
+                                <span className="w-1.5 h-1.5 rounded-full bg-cyan-600" /> Patent 1: Propagation
+                            </h3>
+                            <p className="leading-relaxed">Analyzes the dependency pathways between organs (e.g. Kidney &rarr; Heart axis) to predict secondary complications using Causal Inference Models.</p>
+                        </div>
+                        <div className="p-4 bg-white/40 rounded-xl border border-gray-200">
+                            <h3 className="text-red-600 font-bold mb-1 flex items-center gap-2">
+                                <span className="w-1.5 h-1.5 rounded-full bg-red-600" /> Patent 2: Physiological Drift
+                            </h3>
+                            <p className="leading-relaxed">Detects latent tissue degeneration by measuring the Mean Squared Error (MSE) deviation from a personalized healthy baseline over time.</p>
+                        </div>
+                    </div>
+                </StitchModal>
+            </div>
+        );
+    }
+
     return (
         <StitchLayout theme={theme}>
-            <div className="absolute top-6 right-6 z-50">
-                <ThemeToggle theme={theme} toggleTheme={() => setTheme(prev => prev === 'dark' ? 'light' : 'dark')} />
+            {/* Header / Nav */}
+            <div className={`fixed top-0 left-0 right-0 h-16 backdrop-blur-xl border-b flex justify-between items-center px-6 z-50 ${theme === 'light' ? 'bg-white/60 border-gray-200 text-gray-900' : 'bg-black/60 border-white/5 text-white'}`}>
+                <div className="flex items-center gap-6">
+                    <div className={`text-xl font-bold tracking-tight flex items-center gap-2 ${theme === 'light' ? 'text-gray-900' : 'text-white'}`}>
+                        <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-cyan-500 to-blue-600 flex items-center justify-center text-white font-mono text-xs">DD</div>
+                        Diabetes Detection
+                    </div>
+                    <div className={`h-6 w-px ${theme === 'light' ? 'bg-gray-300' : 'bg-white/10'}`} />
+                    <div className="flex items-center gap-3">
+                        <div className={`px-3 py-1 border rounded-full text-xs font-mono ${theme === 'light' ? 'bg-gray-100 border-gray-300 text-gray-600' : 'bg-white/5 border-white/10 text-gray-300'}`}>
+                            ID: <span className={theme === 'light' ? 'text-gray-900' : 'text-white'}>{patientId}</span>
+                        </div>
+                        {loadingAnalysis && (
+                            <div className="flex items-center gap-2 text-xs text-cyan-600">
+                                <div className="w-2 h-2 rounded-full bg-cyan-600 animate-pulse" />
+                                Processing Neural Networks...
+                            </div>
+                        )}
+                    </div>
+                </div>
+
+                <div className="flex items-center gap-4">
+                    <ThemeToggle theme={theme} toggleTheme={() => setTheme(prev => prev === 'dark' ? 'light' : 'dark')} />
+                    <button onClick={() => setPatientId(null)} className="px-4 py-1.5 rounded-lg bg-red-500/10 hover:bg-red-500/20 text-red-500 text-xs font-medium border border-red-500/20 transition-colors">
+                        Disconnect
+                    </button>
+                </div>
             </div>
 
-            <Scene vitals={vitals} drifts={drifts} onOrganClick={(organ) => console.log(organ)} />
+            {/* Main Dashboard Content */}
+            <div className={`pt-20 min-h-screen box-border ${theme === 'light' ? 'bg-gray-50' : 'bg-[#050505]'}`}>
+                <AnalyticsDashboard analysisData={analysisData} patientId={patientId} theme={theme} />
+            </div>
 
-            <AnimatePresence>
-                {alert && (
-                    <svg className="absolute inset-0 w-full h-full pointer-events-none z-40">
-                        <motion.line
-                            x1="10%" y1="10%"
-                            x2="90%" y2="10%"
-                            initial={{ pathLength: 0, opacity: 0 }}
-                            animate={{ pathLength: 1, opacity: 1 }}
-                            exit={{ opacity: 0 }}
-                            stroke="url(#beamGradient)"
-                            strokeWidth="2"
-                            strokeDasharray="5,5"
-                        />
-                        <defs>
-                            <linearGradient id="beamGradient" x1="0%" y1="0%" x2="100%" y2="0%">
-                                <stop offset="0%" stopColor="#a855f7" />
-                                <stop offset="100%" stopColor="#ef4444" />
-                            </linearGradient>
-                        </defs>
-                    </svg>
-                )}
-            </AnimatePresence>
-
-            <HUD vitals={vitals} drifts={drifts} blockchain={blockchain} />
-
-            <AnimatePresence>
-                {alert && ragContext && (
-                    <div className="absolute bottom-10 right-10 z-50">
-                        <StitchCard className="w-[30rem] border-cyan-500/50">
-                            <div className="flex justify-between items-start mb-4">
-                                <div>
-                                    <h2 className="text-xl font-bold text-cyan-400">CAUSAL PROPAGATION DETECTED</h2>
-                                    <p className="text-xs text-cyan-200/70 font-mono mt-1">AI AGENT: DIAGNOSTIC COUNCIL</p>
-                                </div>
-                                <button onClick={() => setAlert(null)} className="text-gray-400 hover:text-white transition-colors">x</button>
-                            </div>
-
-                            <div className="space-y-4">
-                                <div className="bg-cyan-900/20 p-3 rounded border-l-2 border-cyan-500">
-                                    <p className="text-sm text-gray-300">{ragContext.explanation}</p>
-                                </div>
-
-                                <div className="grid grid-cols-2 gap-2 text-xs">
-                                    <div className="bg-white/5 p-2 rounded">
-                                        <span className="text-gray-400 block mb-1">SIMILAR CASE</span>
-                                        <span className="text-white font-mono">{ragContext.similar_case?.outcome || "Analyzing..."}</span>
-                                    </div>
-                                    <div className="bg-white/5 p-2 rounded">
-                                        <span className="text-gray-400 block mb-1">SOURCE</span>
-                                        <span className="text-white font-mono italic truncate">{ragContext.source?.title}</span>
-                                    </div>
-                                </div>
-                            </div>
-                        </StitchCard>
-                    </div>
-                )}
-            </AnimatePresence>
         </StitchLayout>
     );
 }

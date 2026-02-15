@@ -4,7 +4,7 @@ import { motion, AnimatePresence } from "framer-motion";
 import { Activity, Radio, ShieldCheck, FileText } from "lucide-react";
 import { StitchCard, StitchCounter } from "./StitchUI";
 
-export default function HUD({ vitals, drifts, blockchain }) {
+export default function HUD({ vitals, drifts, blockchain, patientId }) {
     return (
         <div className="absolute inset-0 pointer-events-none p-6 flex flex-col justify-between z-30">
 
@@ -15,15 +15,20 @@ export default function HUD({ vitals, drifts, blockchain }) {
                         <Activity className="w-6 h-6 animate-pulse" />
                         NEURO-CAUSAL TWIN
                     </h1>
-                    <p className="text-xs text-gray-400 mt-1">PATIENT ID: <span className="text-white">P-001</span> | STATUS: MONITORING</p>
+                    <p className="text-xs text-gray-400 mt-1">
+                        PATIENT ID: <span className="text-white font-bold">{patientId || 'CONNECTING...'}</span> | STATUS: <span className="text-green-400">MONITORING</span>
+                    </p>
                 </StitchCard>
 
                 <div className="flex gap-4">
-                    <StitchCard className="!p-2 !px-4 border-purple-500/30" delay={0.1}>
+                    <StitchCard className="!p-2 !px-4 border-purple-500/30" delay={0.1} title="Glomerular Filtration Rate (Kidney Health)">
                         <StitchCounter value={vitals.gfr?.toFixed(1) || '--'} label="KIDNEY (GFR)" />
                     </StitchCard>
-                    <StitchCard className="!p-2 !px-4 border-pink-500/30" delay={0.2}>
+                    <StitchCard className="!p-2 !px-4 border-pink-500/30" delay={0.2} title="Retina Thickness in Micrometers">
                         <StitchCounter value={vitals.retina?.toFixed(0) || '--'} label="RETINA (µm)" />
+                    </StitchCard>
+                    <StitchCard className="!p-2 !px-4 border-yellow-500/30" delay={0.3} title="Blood Glucose Level">
+                        <StitchCounter value={vitals.glucose?.toFixed(0) || '--'} label="GLUCOSE (mg/dL)" />
                     </StitchCard>
                 </div>
             </header>
