@@ -20,7 +20,7 @@ class RealWorldDataLoader:
             'SkinThickness': 'nerve', # Proxy: Skin thickness ~ peripheral nerve health
         }
         
-        self.required_columns = ['glucose', 'gfr', 'retina_thickness', 'hrv', 'nerve']
+        self.required_columns = ['glucose', 'gfr', 'retina_thickness', 'hrv', 'nerve', 'spo2', 'skin_temp', 'eda', 'activity']
 
     def load_data(self):
         """Loads data from CSV or falls back to simulation."""
@@ -59,8 +59,8 @@ class RealWorldDataLoader:
                         df[col] = extended_sim[col].iloc[:len(df)].values
             
             # Ensure no NaNs from the merge
-            df.fillna(method='ffill', inplace=True)
-            df.fillna(method='bfill', inplace=True)
+            df.ffill(inplace=True)
+            df.bfill(inplace=True)
             
             self.data = df
         else:

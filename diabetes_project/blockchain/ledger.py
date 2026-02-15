@@ -17,10 +17,20 @@ class HealthBlock:
         self.hash = hash if hash else self.compute_hash()
 
     def compute_hash(self):
+        block_string = json.dumps({
+            "index": self.index,
+            "timestamp": self.timestamp,
+            "data": self.data,
+            "previous_hash": self.previous_hash,
+            "nonce": self.nonce
+        }, sort_keys=True).encode()
+        return hashlib.sha256(block_string).hexdigest()
+
+    def mine_block(self, difficulty):
+        target = "0" * difficulty
         while self.hash[:difficulty] != target:
             self.nonce += 1
             self.hash = self.compute_hash()
-            
         print(f"Block Mined! Nonce: {self.nonce}, Hash: {self.hash}")
 
 class BlockchainLedger:

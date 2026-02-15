@@ -24,12 +24,29 @@ class PatientDataSimulator:
         # Heart: HRV (ms) - stable ~40-60
         hrv = np.random.normal(loc=50, scale=8, size=self.days)
 
+        # SpO2 (%) - stable ~95-100
+        spo2 = np.random.normal(loc=98, scale=1, size=self.days)
+        spo2 = np.clip(spo2, 90, 100) # Clip to realistic range
+
+        # Skin Temperature (celsius) - stable ~33-34 (peripheral)
+        skin_temp = np.random.normal(loc=33.5, scale=0.5, size=self.days)
+
+        # EDA (Microsiemens) - Stress/Sweat - fluctuates
+        eda = np.abs(np.random.normal(loc=5, scale=2, size=self.days))
+
+        # Activity (Steps/day) - fluctuating
+        activity = np.abs(np.random.normal(loc=5000, scale=1500, size=self.days))
+
         return pd.DataFrame({
             'date': dates,
             'glucose': glucose,
             'gfr': gfr,
             'retina_thickness': retina_thick,
-            'hrv': hrv
+            'hrv': hrv,
+            'spo2': spo2,
+            'skin_temp': skin_temp,
+            'eda': eda,
+            'activity': activity
         })
 
     def inject_drift(self, df, start_day=180, organ='kidney', intensity=0.1):

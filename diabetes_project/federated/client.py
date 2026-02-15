@@ -42,25 +42,31 @@ class FederatedClient:
         tensor_data = torch.FloatTensor(norm_data)
         self.detector.train(tensor_data)
 
+    def detect_drift(self, row_values):
+        """
+        Runs drift detection on a specific set of values (e.g. from a CSV row).
+        row_values: [glucose, gfr, retina_thickness, hrv]
+        """
+        norm_data = self._normalize(np.array(row_values))
+        tensor_data = torch.FloatTensor(norm_data).unsqueeze(0)
+        drift, error = self.detector.detect(tensor_data)
+        return drift, error.item() if hasattr(error, 'item') else error
+
     def monitor(self, current_day_index):
-        """Checks for drift on a specific day."""
-        # Loop functionality for demo purposes if we run out of data
+        """Checks for drift on a specific day using internal monitoring schedule."""
         if len(self.monitoring_data) == 0:
              return {"alert": False, "msg": "No monitoring data available"}
              
         idx = current_day_index % len(self.monitoring_data)
-
         day_data = self.monitoring_data[idx]
-        norm_data = self._normalize(day_data)
-        tensor_data = torch.FloatTensor(norm_data).unsqueeze(0)
         
-        drift, error = self.detector.detect(tensor_data)
+        drift, error = self.detect_drift(day_data)
         
         if drift:
             return {
                 "alert": True,
                 "patient_id": self.patient_id,
-                "day": 90 + current_day_index, # Logical day, not index
+                "day": 90 + current_day_index,
                 "error": error,
                 "msg": f"Drift Detected! Error: {error:.4f}"
             }
