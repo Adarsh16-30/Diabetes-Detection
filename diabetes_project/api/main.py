@@ -162,13 +162,9 @@ async def analyze_patient(patient_id: str):
     mse = total_drift_error / data_len if data_len > 0 else 0
     risk_score = (anomalies / data_len) * 100 if data_len > 0 else 0
     
-    # Advanced Metrics Calculation (New Request)
+    # Advanced Metrics Calculation
     
-    # 1. Structural Entropy (Causal): Measure of system disorder
-    # H = -sum(p * log(p)) where p is normalized risk probability of each organ
-    import numpy as np
-    
-    # Get average risk per organ across history
+    # 1. Structural Entropy
     avg_risks = {
         'kidney': np.mean([h['predictions']['kidney'] for h in history]) if history else 0,
         'retina': np.mean([h['predictions']['retina'] for h in history]) if history else 0,
@@ -181,37 +177,34 @@ async def analyze_patient(patient_id: str):
         structural_entropy = -sum([p * np.log2(p) if p > 0 else 0 for p in probs])
     else:
         structural_entropy = 0
-        
-    # 2. Causal Impact Score: Downstream effect of Glucose
-    # Simplified as weighted sum of correlation between Glucose and other organs' drift
+
+    # 2. Causal Impact Score
     causal_impact_score = (avg_risks['kidney'] * 0.4 + avg_risks['retina'] * 0.3 + avg_risks['heart'] * 0.2 + avg_risks['nerve'] * 0.1) * 100
 
-    # 3. Network Stability (Causal): Inverse of average propagation risk
+    # 3. Network Stability
     avg_prop_risk = sum([sum(h['predictions'].values())/5 for h in history]) / data_len if data_len else 0
     network_stability = max(0, 100 * (1 - avg_prop_risk))
     
-    # 4. Cascading Risk (Causal): High if multiple organs drift simultaneously
+    # 4. Cascading Risk
     cascading_events = len([h for h in history if sum(1 for v in h['predictions'].values() if v > 0.5) >= 2])
     cascading_risk_score = (cascading_events / data_len) * 100 if data_len else 0
 
-    # 5. Lyapunov Exponent (Drift): Measure of chaotic divergence
-    # Simplified estimation: slope of log(drift_error) over time
+    # 5. Lyapunov Exponent
     drift_errors = [h['drift_error'] for h in history]
     if len(drift_errors) > 10:
-        log_drifts = np.log(np.array(drift_errors) + 1e-6) # Avoid log(0)
+        log_drifts = np.log(np.array(drift_errors) + 1e-6) 
         time_steps = np.arange(len(drift_errors))
-        # Linear fit to get slope (lambda)
-        lyapunov_exponent = np.polyfit(time_steps, log_drifts, 1)[0] * 100 # Scale for display
+        lyapunov_exponent = np.polyfit(time_steps, log_drifts, 1)[0] * 100 
     else:
         lyapunov_exponent = 0
 
-    # 6. Drift Velocity (Drift): Rate of change of error
+    # 6. Drift Velocity
     drift_velocity = (drift_errors[-1] - drift_errors[0]) / len(drift_errors) if len(drift_errors) > 1 else 0
 
-    # 7. Volatility Index (Drift): Standard deviation
+    # 7. Volatility Index
     volatility_index = np.std(drift_errors) if drift_errors else 0
     
-    # 8. Recovery Potential (Drift)
+    # 8. Recovery Potential
     recovery_potential = max(0, 100 - risk_score - (volatility_index * 100))
 
     return {

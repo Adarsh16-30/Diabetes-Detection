@@ -1146,5 +1146,353 @@
         "previous_hash": "00000761ebca1bab44a3fcad9511cb24e26380c4f12dc0633897baa77c968252",
         "nonce": 8679,
         "hash": "00006c16c3596d69613c68765a551108c8872a148a172c576fbf2bf587969b84"
+    },
+    {
+        "index": 96,
+        "timestamp": 1771173996.632884,
+        "data": {
+            "day": 43,
+            "error": 0.4438391327857971,
+            "msg": "Drift Detected"
+        },
+        "previous_hash": "00006c16c3596d69613c68765a551108c8872a148a172c576fbf2bf587969b84",
+        "nonce": 14853,
+        "hash": "00000308e993c4281ad52e11a33360dfa6444b19478d48ceaba761213ad6a19f"
+    },
+    {
+        "index": 97,
+        "timestamp": 1771173996.9398196,
+        "data": {
+            "day": 53,
+            "error": 0.32504358887672424,
+            "msg": "Drift Detected"
+        },
+        "previous_hash": "00000308e993c4281ad52e11a33360dfa6444b19478d48ceaba761213ad6a19f",
+        "nonce": 68776,
+        "hash": "0000796d9e54a4d1c0999a3b882c7480c022703e74d813f83c73edd06a2fa1d3"
+    },
+    {
+        "index": 98,
+        "timestamp": 1771173998.4001617,
+        "data": {
+            "day": 67,
+            "error": 0.3392501771450043,
+            "msg": "Drift Detected"
+        },
+        "previous_hash": "0000796d9e54a4d1c0999a3b882c7480c022703e74d813f83c73edd06a2fa1d3",
+        "nonce": 46081,
+        "hash": "0000932159d1e24a2843d9a5cda89e5e0f89ee11c1cef4041aaaf440672831c1"
+    },
+    {
+        "index": 99,
+        "timestamp": 1771173999.3172083,
+        "data": {
+            "day": 84,
+            "error": 0.3789704144001007,
+            "msg": "Drift Detected"
+        },
+        "previous_hash": "0000932159d1e24a2843d9a5cda89e5e0f89ee11c1cef4041aaaf440672831c1",
+        "nonce": 32825,
+        "hash": "0000a99e5f6b4aedb77047f64d2a919fce1b0b8060a78cb498bc96798c6063d8"
+    },
+    {
+        "index": 100,
+        "timestamp": 1771173999.9977582,
+        "data": {
+            "day": 115,
+            "error": 0.3286726772785187,
+            "msg": "Drift Detected"
+        },
+        "previous_hash": "0000a99e5f6b4aedb77047f64d2a919fce1b0b8060a78cb498bc96798c6063d8",
+        "nonce": 41216,
+        "hash": "0000a244595e2fdd6a054ecf9be9912772b1ca4640909c595e97f5301dfbefcc"
+    },
+    {
+        "index": 101,
+        "timestamp": 1771174000.80518,
+        "data": {
+            "day": 120,
+            "error": 0.344912588596344,
+            "msg": "Drift Detected"
+        },
+        "previous_hash": "0000a244595e2fdd6a054ecf9be9912772b1ca4640909c595e97f5301dfbefcc",
+        "nonce": 4869,
+        "hash": "00004a4cfc81a0ef8a09312a2497c872aa763034099f40e00ee92f744d43d92a"
+    },
+    {
+        "index": 102,
+        "timestamp": 1771174000.9151661,
+        "data": {
+            "day": 123,
+            "error": 0.35013875365257263,
+            "msg": "Drift Detected"
+        },
+        "previous_hash": "00004a4cfc81a0ef8a09312a2497c872aa763034099f40e00ee92f744d43d92a",
+        "nonce": 335533,
+        "hash": "00002138bc98e931f5fd1e57816d10cd7a4940261647b7a99291f4ad0bda4aa3"
+    },
+    {
+        "index": 103,
+        "timestamp": 1771174007.3511345,
+        "data": {
+            "day": 148,
+            "error": 0.3322535753250122,
+            "msg": "Drift Detected"
+        },
+        "previous_hash": "00002138bc98e931f5fd1e57816d10cd7a4940261647b7a99291f4ad0bda4aa3",
+        "nonce": 130354,
+        "hash": "00006592cd13ed881defc8fd5896ec70521342856e4be4ea3a924ed16c76bcb8"
+    },
+    {
+        "index": 104,
+        "timestamp": 1771174008.268659,
+        "data": {
+            "day": 177,
+            "error": 0.5936017036437988,
+            "msg": "Drift Detected"
+        },
+        "previous_hash": "00006592cd13ed881defc8fd5896ec70521342856e4be4ea3a924ed16c76bcb8",
+        "nonce": 32778,
+        "hash": "0000e58ec5e12276727d8a9e83516b18602db531da5104845efb9a59b17ed18f"
+    },
+    {
+        "index": 105,
+        "timestamp": 1771174008.421759,
+        "data": {
+            "day": 207,
+            "error": 0.35331839323043823,
+            "msg": "Drift Detected"
+        },
+        "previous_hash": "0000e58ec5e12276727d8a9e83516b18602db531da5104845efb9a59b17ed18f",
+        "nonce": 33550,
+        "hash": "000078839c3619cdaa8846435f7bfda357c0618fcf923c2ef4c8ff40b962975a"
+    },
+    {
+        "index": 106,
+        "timestamp": 1771174008.6022768,
+        "data": {
+            "day": 212,
+            "error": 0.3633965849876404,
+            "msg": "Drift Detected"
+        },
+        "previous_hash": "000078839c3619cdaa8846435f7bfda357c0618fcf923c2ef4c8ff40b962975a",
+        "nonce": 4855,
+        "hash": "0000c4b825f5193c7c5d694cae88f07af0d3167d153b9f91d94279354feb0198"
+    },
+    {
+        "index": 107,
+        "timestamp": 1771174008.6543245,
+        "data": {
+            "day": 221,
+            "error": 0.37641486525535583,
+            "msg": "Drift Detected"
+        },
+        "previous_hash": "0000c4b825f5193c7c5d694cae88f07af0d3167d153b9f91d94279354feb0198",
+        "nonce": 160884,
+        "hash": "000008f828908587a8dff0e8b7c121345083615885fe3a85eaefa79a541a5897"
+    },
+    {
+        "index": 108,
+        "timestamp": 1771174009.4192688,
+        "data": {
+            "day": 247,
+            "error": 0.3824298679828644,
+            "msg": "Drift Detected"
+        },
+        "previous_hash": "000008f828908587a8dff0e8b7c121345083615885fe3a85eaefa79a541a5897",
+        "nonce": 20525,
+        "hash": "0000b2fd3ecc59554dfd63ff505bd1b1de094f761bffd486edfe5e25e2bb0a21"
+    },
+    {
+        "index": 109,
+        "timestamp": 1771174009.5283673,
+        "data": {
+            "day": 303,
+            "error": 0.38317930698394775,
+            "msg": "Drift Detected"
+        },
+        "previous_hash": "0000b2fd3ecc59554dfd63ff505bd1b1de094f761bffd486edfe5e25e2bb0a21",
+        "nonce": 43005,
+        "hash": "00005af88512bd01d086a3b8138de932eb101819007c41f169b98f7ce61d529d"
+    },
+    {
+        "index": 110,
+        "timestamp": 1771174009.745003,
+        "data": {
+            "day": 362,
+            "error": 0.4755268394947052,
+            "msg": "Drift Detected"
+        },
+        "previous_hash": "00005af88512bd01d086a3b8138de932eb101819007c41f169b98f7ce61d529d",
+        "nonce": 90709,
+        "hash": "0000d7d59fbfb3962da1ddd4df6fdb179fa9f7d23e8ff0a28a6d467cfa60af9d"
+    },
+    {
+        "index": 111,
+        "timestamp": 1771174010.171036,
+        "data": {
+            "day": 363,
+            "error": 0.3802291750907898,
+            "msg": "Drift Detected"
+        },
+        "previous_hash": "0000d7d59fbfb3962da1ddd4df6fdb179fa9f7d23e8ff0a28a6d467cfa60af9d",
+        "nonce": 86749,
+        "hash": "0000705b690994c6447b85ab852561387ef764d07b6e0a3b2249b7659be33be7"
+    },
+    {
+        "index": 112,
+        "timestamp": 1771174010.6098087,
+        "data": {
+            "day": 387,
+            "error": 0.3265136480331421,
+            "msg": "Drift Detected"
+        },
+        "previous_hash": "0000705b690994c6447b85ab852561387ef764d07b6e0a3b2249b7659be33be7",
+        "nonce": 69020,
+        "hash": "0000b876df2364417df2154c952325d876830ad90b5cb916d0f1147e1d0cba0c"
+    },
+    {
+        "index": 113,
+        "timestamp": 1771174010.9573178,
+        "data": {
+            "day": 445,
+            "error": 0.42469263076782227,
+            "msg": "Drift Detected"
+        },
+        "previous_hash": "0000b876df2364417df2154c952325d876830ad90b5cb916d0f1147e1d0cba0c",
+        "nonce": 30185,
+        "hash": "00006d997705b8254628ed9d8efb308b85999e0203ff18bff0abdce70a984898"
+    },
+    {
+        "index": 114,
+        "timestamp": 1771174011.1269944,
+        "data": {
+            "day": 459,
+            "error": 0.49241364002227783,
+            "msg": "Drift Detected"
+        },
+        "previous_hash": "00006d997705b8254628ed9d8efb308b85999e0203ff18bff0abdce70a984898",
+        "nonce": 3061,
+        "hash": "000036f5abfab9e893e0e669e594b7513f359bcf7ecd0368772e2bb5dcb5bb9d"
+    },
+    {
+        "index": 115,
+        "timestamp": 1771174011.1520221,
+        "data": {
+            "day": 487,
+            "error": 0.36161237955093384,
+            "msg": "Drift Detected"
+        },
+        "previous_hash": "000036f5abfab9e893e0e669e594b7513f359bcf7ecd0368772e2bb5dcb5bb9d",
+        "nonce": 45855,
+        "hash": "00009a6afe76faeb0a619a1332ad2b58bf53a57ed5c11c3977bbce344d82edd8"
+    },
+    {
+        "index": 116,
+        "timestamp": 1771174011.3669887,
+        "data": {
+            "day": 489,
+            "error": 0.3521057963371277,
+            "msg": "Drift Detected"
+        },
+        "previous_hash": "00009a6afe76faeb0a619a1332ad2b58bf53a57ed5c11c3977bbce344d82edd8",
+        "nonce": 6010,
+        "hash": "00009c919d0f2ce097d3c79a7b48d0a8a99809803905408b44abeb5a1e00d2c1"
+    },
+    {
+        "index": 117,
+        "timestamp": 1771174011.4152257,
+        "data": {
+            "day": 552,
+            "error": 0.3473767936229706,
+            "msg": "Drift Detected"
+        },
+        "previous_hash": "00009c919d0f2ce097d3c79a7b48d0a8a99809803905408b44abeb5a1e00d2c1",
+        "nonce": 31006,
+        "hash": "00006de528e469e328eb4f93b3fe04e8b6d1c8906040f03ca513c58bab3bc9a0"
+    },
+    {
+        "index": 118,
+        "timestamp": 1771174011.58883,
+        "data": {
+            "day": 658,
+            "error": 0.34902483224868774,
+            "msg": "Drift Detected"
+        },
+        "previous_hash": "00006de528e469e328eb4f93b3fe04e8b6d1c8906040f03ca513c58bab3bc9a0",
+        "nonce": 77102,
+        "hash": "0000aaec476c894e1026761def736335e81e29551d4883b69868e4f85d708e5c"
+    },
+    {
+        "index": 119,
+        "timestamp": 1771174011.9329188,
+        "data": {
+            "day": 666,
+            "error": 0.39441201090812683,
+            "msg": "Drift Detected"
+        },
+        "previous_hash": "0000aaec476c894e1026761def736335e81e29551d4883b69868e4f85d708e5c",
+        "nonce": 231122,
+        "hash": "0000a3a4ed15bb13fe21bbc281b463023b5b9fa51b445863e3ab1a37cf70fbbe"
+    },
+    {
+        "index": 120,
+        "timestamp": 1771174012.9669175,
+        "data": {
+            "day": 673,
+            "error": 0.45859354734420776,
+            "msg": "Drift Detected"
+        },
+        "previous_hash": "0000a3a4ed15bb13fe21bbc281b463023b5b9fa51b445863e3ab1a37cf70fbbe",
+        "nonce": 68807,
+        "hash": "000029d93f79a51b824783e520b6eae657c06b625113d0fde6ab38d7a4caf384"
+    },
+    {
+        "index": 121,
+        "timestamp": 1771174013.2745972,
+        "data": {
+            "day": 674,
+            "error": 0.3938043713569641,
+            "msg": "Drift Detected"
+        },
+        "previous_hash": "000029d93f79a51b824783e520b6eae657c06b625113d0fde6ab38d7a4caf384",
+        "nonce": 31508,
+        "hash": "00009bae58a7f795c25d48deaed5b4c9f33bdcee42675b5ba4cf8210244321b1"
+    },
+    {
+        "index": 122,
+        "timestamp": 1771174013.4181476,
+        "data": {
+            "day": 691,
+            "error": 0.3814077377319336,
+            "msg": "Drift Detected"
+        },
+        "previous_hash": "00009bae58a7f795c25d48deaed5b4c9f33bdcee42675b5ba4cf8210244321b1",
+        "nonce": 9361,
+        "hash": "00002226926bcdf66153453de602783b8b7f9d87408ee1f37adadc167efcb33c"
+    },
+    {
+        "index": 123,
+        "timestamp": 1771174013.5168436,
+        "data": {
+            "day": 746,
+            "error": 0.3429202437400818,
+            "msg": "Drift Detected"
+        },
+        "previous_hash": "00002226926bcdf66153453de602783b8b7f9d87408ee1f37adadc167efcb33c",
+        "nonce": 174637,
+        "hash": "0000fab08d19fc57a3c881747fbb3a1642c4aacc231aa050f7078d9a8768c08e"
+    },
+    {
+        "index": 124,
+        "timestamp": 1771174014.3103507,
+        "data": {
+            "day": 759,
+            "error": 0.42006850242614746,
+            "msg": "Drift Detected"
+        },
+        "previous_hash": "0000fab08d19fc57a3c881747fbb3a1642c4aacc231aa050f7078d9a8768c08e",
+        "nonce": 7072,
+        "hash": "00005559ed24e08473bc72b851f73e257afe5180c2f28701397c8ed538e19b91"
     }
 ]

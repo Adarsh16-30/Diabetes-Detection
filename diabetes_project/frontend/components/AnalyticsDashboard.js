@@ -7,47 +7,72 @@ import { StitchCard, StitchButton } from './StitchUI';
 import { Activity, Share2, Shield, AlertTriangle, Zap, HeartPulse, Brain, Thermometer } from 'lucide-react';
 
 const MetricCard = ({ title, value, subtext, icon: Icon, color, theme }) => (
-    <StitchCard className={`!p-4 ${theme === 'light' ? `border-${color}-500/30 bg-white/60 shadow-lg` : `border-${color}-500/30 bg-black/40`}`}>
+    <StitchCard className={`!p-5 ${theme === 'light' ? `border-${color}-500/30 bg-white/60 shadow-lg` : `border-${color}-500/30 bg-black/40`}`}>
         <div className="flex justify-between items-start">
             <div>
-                <p className={`text-xs uppercase tracking-widest ${theme === 'light' ? 'text-gray-500' : 'text-gray-400'}`}>{title}</p>
-                <h3 className={`text-2xl font-bold mt-1 font-mono ${theme === 'light' ? 'text-gray-900' : 'text-white'}`}>{typeof value === 'number' ? value.toFixed(2) : value}</h3>
-                <p className={`text-xs mt-1 text-${color}-500`}>{subtext}</p>
+                <p className={`text-sm uppercase tracking-widest ${theme === 'light' ? 'text-gray-500' : 'text-gray-400'}`}>{title}</p>
+                <h3 className={`text-3xl font-bold mt-2 font-mono ${theme === 'light' ? 'text-gray-900' : 'text-white'}`}>{typeof value === 'number' ? value.toFixed(2) : value}</h3>
+                <p className={`text-sm mt-1 text-${color}-500`}>{subtext}</p>
             </div>
-            <div className={`p-2 rounded ${theme === 'light' ? `bg-${color}-100 text-${color}-600` : `bg-${color}-500/10 text-${color}-400`}`}>
-                <Icon size={20} />
+            <div className={`p-3 rounded-lg ${theme === 'light' ? `bg-${color}-100 text-${color}-600` : `bg-${color}-500/10 text-${color}-400`}`}>
+                <Icon size={24} />
             </div>
         </div>
     </StitchCard>
 );
 
+const ClinicalSummary = ({ type, data, theme }) => {
+    const isCausal = type === 'causal';
+
+    return (
+        <StitchCard className={`p-4 mb-6 ${theme === 'light' ? 'bg-blue-50/50 border-blue-100' : 'bg-blue-900/10 border-blue-500/20'}`}>
+            <h4 className={`text-sm font-bold mb-2 uppercase flex items-center gap-2 ${theme === 'light' ? 'text-blue-800' : 'text-blue-400'}`}>
+                <Brain size={16} />
+                Clinical Interpretation
+            </h4>
+            <p className={`text-sm leading-relaxed ${theme === 'light' ? 'text-blue-900' : 'text-blue-100'}`}>
+                {isCausal
+                    ? `Analysis identifies a ${data.network_stability < 80 ? "destabilized" : "stable"} organ network. The metabolic source (Glucose) is exerting a ${data.causal_impact_score > 50 ? "critical" : "manageable"} downstream load, with a ${(data.cascading_risk_score).toFixed(1)}% probability of cascading failure events.`
+                    : `Longitudinal tracking reveals a ${data.mse_drift > 0.05 ? "significant" : "minor"} deviation from the health baseline. The ${data.lyapunov_exponent > 0 ? "positive" : "negative"} Lyapunov exponent indicates the patient's physiology is ${data.lyapunov_exponent > 0 ? "entering a chaotic, unpredictable state" : "maintaining homeostatic equilibrium"}.`
+                }
+            </p>
+        </StitchCard>
+    );
+};
+
 const PropagationNode = ({ label, risk, x, y, theme }) => {
     const isHighRisk = risk > 0.5;
+    const timeToImpact = isHighRisk ? "< 1 Month" : risk > 0.2 ? "6-12 Months" : "> 1 Year";
 
     return (
         <motion.div
             initial={{ opacity: 0 }}
             animate={{ opacity: 1, scale: isHighRisk ? 1.1 : 1 }}
-            className={`absolute flex flex-col items-center justify-center p-2 rounded-xl border backdrop-blur-sm transition-all duration-500 shadow-sm
+            className={`absolute flex flex-col items-center justify-center p-3 rounded-xl border backdrop-blur-sm transition-all duration-500 shadow-md z-10
                 ${theme === 'light'
-                    ? (isHighRisk ? 'bg-red-50 border-red-200 text-red-700' : 'bg-green-50 border-green-200 text-green-700')
-                    : (isHighRisk ? 'bg-red-900/20 border-red-500/30 text-white' : 'bg-green-900/10 border-green-500/20 text-white')
+                    ? (isHighRisk ? 'bg-red-50 border-red-200 text-red-800' : 'bg-white border-green-200 text-gray-800')
+                    : (isHighRisk ? 'bg-red-900/40 border-red-500/50 text-white' : 'bg-gray-800/80 border-green-500/20 text-white')
                 }
             `}
             style={{
                 left: `${x}%`,
                 top: `${y}%`,
-                boxShadow: isHighRisk && theme !== 'light' ? '0 0 20px rgba(239, 68, 68, 0.3)' : 'none'
+                transform: 'translate(-50%, -50%)',
+                boxShadow: isHighRisk && theme !== 'light' ? '0 0 20px rgba(239, 68, 68, 0.4)' : 'none'
             }}
         >
-            <span className={`text-xs font-bold mb-1 ${theme === 'light' ? 'text-gray-800' : 'text-white'}`}>{label}</span>
-            <span className={`text-xs font-mono font-bold ${isHighRisk ? 'text-red-600' : 'text-green-600'}`}>{(risk * 100).toFixed(0)}% Risk</span>
+            <span className="text-sm font-bold mb-1 whitespace-nowrap">{label}</span>
+            <div className="flex flex-col items-center">
+                <span className={`text-xs font-mono font-bold ${isHighRisk ? 'text-red-600' : 'text-green-600'}`}>{(risk * 100).toFixed(0)}% Risk</span>
+                {risk > 0 && (
+                    <span className="text-[10px] opacity-70 mt-1 bg-black/5 px-1 rounded">Reach: {timeToImpact}</span>
+                )}
+            </div>
         </motion.div>
     );
 };
 
 const ConnectionLine = ({ x1, y1, x2, y2, active, theme }) => {
-    // Offset Y by 5 to match the line's visual start
     const startY = y1 + 5;
     const endY = y2 + 5;
 
@@ -66,7 +91,7 @@ const ConnectionLine = ({ x1, y1, x2, y2, active, theme }) => {
                 <motion.div
                     className="absolute w-2 h-2 bg-red-500 rounded-full shadow-[0_0_8px_rgba(239,68,68,0.8)]"
                     style={{
-                        marginLeft: '-4px', // Center the 8px (w-2) dot
+                        marginLeft: '-4px',
                         marginTop: '-4px'
                     }}
                     initial={{ left: `${x1}%`, top: `${startY}%` }}
@@ -86,7 +111,7 @@ const ConnectionLine = ({ x1, y1, x2, y2, active, theme }) => {
 };
 
 export default function AnalyticsDashboard({ analysisData, patientId, theme }) {
-    const [activeView, setActiveView] = useState('causal'); // 'causal' or 'drift'
+    const [activeView, setActiveView] = useState('causal');
 
     const { summary, history } = analysisData || { summary: { mse_drift: 0, risk_score: 0, anomalies_detected: 0, total_days: 0 }, history: [] };
     const lastDay = history.length > 0 ? history[history.length - 1] : {};
@@ -119,13 +144,13 @@ export default function AnalyticsDashboard({ analysisData, patientId, theme }) {
     if (!analysisData) return <div className={`p-10 text-center ${theme === 'light' ? 'text-gray-500' : 'text-gray-500'}`}>Processing Diagnostic Data...</div>;
 
     return (
-        <div className="p-6 space-y-6 max-h-screen overflow-y-auto pb-20">
+        <div className="p-6 space-y-8 max-h-screen overflow-y-auto pb-40">
             {/* View Switching Tabs */}
-            <div className="flex justify-center mb-6">
+            <div className="flex justify-center mb-8">
                 <div className={`flex p-1 rounded-xl border ${theme === 'light' ? 'bg-gray-100 border-gray-200' : 'bg-white/5 border-white/10'}`}>
                     <button
                         onClick={() => setActiveView('causal')}
-                        className={`px-6 py-2 rounded-lg text-sm font-bold transition-all ${activeView === 'causal'
+                        className={`px-8 py-3 rounded-lg text-sm font-bold transition-all ${activeView === 'causal'
                             ? (theme === 'light' ? 'bg-white text-cyan-600 shadow-sm' : 'bg-cyan-500/20 text-cyan-400 border border-cyan-500/50')
                             : 'text-gray-400 hover:text-gray-500'}`}
                     >
@@ -133,7 +158,7 @@ export default function AnalyticsDashboard({ analysisData, patientId, theme }) {
                     </button>
                     <button
                         onClick={() => setActiveView('drift')}
-                        className={`px-6 py-2 rounded-lg text-sm font-bold transition-all ${activeView === 'drift'
+                        className={`px-8 py-3 rounded-lg text-sm font-bold transition-all ${activeView === 'drift'
                             ? (theme === 'light' ? 'bg-white text-red-600 shadow-sm' : 'bg-red-500/20 text-red-400 border border-red-500/50')
                             : 'text-gray-400 hover:text-gray-500'}`}
                     >
@@ -149,10 +174,12 @@ export default function AnalyticsDashboard({ analysisData, patientId, theme }) {
                         initial={{ opacity: 0, y: 10 }}
                         animate={{ opacity: 1, y: 0 }}
                         exit={{ opacity: 0, y: -10 }}
-                        className="space-y-6"
+                        className="space-y-8"
                     >
+                        <ClinicalSummary type="causal" data={summary} theme={theme} />
+
                         {/* Causal Metrics */}
-                        <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+                        <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
                             <MetricCard
                                 title="Structural Entropy"
                                 value={summary.structural_entropy || 0}
@@ -216,7 +243,7 @@ export default function AnalyticsDashboard({ analysisData, patientId, theme }) {
                                         {['Glu', 'Kid', 'Ret', 'Hrt'].map(l => <div key={l} className="text-[10px] font-bold text-center text-gray-500">{l}</div>)}
                                         {/* Simplified 4x4 Heatmap Visualization */}
                                         {Array.from({ length: 16 }).map((_, i) => {
-                                            const intensity = Math.random(); // Mock intensity for viz, real would come from matrix
+                                            const intensity = Math.random();
                                             return (
                                                 <div
                                                     key={i}
@@ -238,10 +265,12 @@ export default function AnalyticsDashboard({ analysisData, patientId, theme }) {
                         initial={{ opacity: 0, y: 10 }}
                         animate={{ opacity: 1, y: 0 }}
                         exit={{ opacity: 0, y: -10 }}
-                        className="space-y-6"
+                        className="space-y-8"
                     >
+                        <ClinicalSummary type="drift" data={summary} theme={theme} />
+
                         {/* Drift Metrics with Advanced Stats */}
-                        <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+                        <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
                             <MetricCard
                                 title="Lyapunov Exp"
                                 value={summary.lyapunov_exponent || 0}
@@ -357,17 +386,17 @@ export default function AnalyticsDashboard({ analysisData, patientId, theme }) {
                                 ZK-PROOF LEDGER (Confidential Audit Trail)
                             </h3>
                             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-2">
-                                {analysisData.ledger.slice(-4).reverse().map((block, i) => (
+                                {(analysisData.ledger || []).slice(-4).reverse().map((block, i) => (
                                     <div key={i} className={`p-3 rounded border font-mono text-xs ${theme === 'light' ? 'bg-gray-50 border-gray-200 text-gray-600' : 'bg-black/40 border-green-500/10 text-gray-400'}`}>
                                         <div className="flex justify-between mb-1">
                                             <span className={theme === 'light' ? 'text-gray-500' : 'text-gray-500'}>BLOCK #{block.index}</span>
                                             <span className="text-green-500">VERIFIED</span>
                                         </div>
                                         <div className="truncate mb-1 opacity-70" title={block.hash}>Hash: {block.hash}</div>
-                                        <div className="opacity-80">Msg: {block.data.msg || "Drift Alert"}</div>
+                                        <div className="opacity-80">Msg: {block.data.message || "Drift Detected"}</div>
                                     </div>
                                 ))}
-                                {analysisData.ledger.length === 0 && (
+                                {(!analysisData.ledger || analysisData.ledger.length === 0) && (
                                     <div className="text-gray-400 text-sm italic">No anomalies to report. Ledger empty.</div>
                                 )}
                             </div>
