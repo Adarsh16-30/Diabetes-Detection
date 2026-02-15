@@ -10,19 +10,17 @@ class RealWorldDataLoader:
         self.simulator = PatientDataSimulator(patient_id)
         self.data = None
         
-        # Standard schema mapping
+        # Pima Indians Diabetes Dataset Mapping
+        # Columns: Pregnancies,Glucose,BloodPressure,SkinThickness,Insulin,BMI,DiabetesPedigreeFunction,Age,Outcome
         self.column_mapping = {
             'Glucose': 'glucose',
-            'GLU': 'glucose',
-            'eGFR': 'gfr',
-            'Creatinine': 'gfr', # Rough proxy if needed, ideally we'd convert
-            'Retina_Thick': 'retina_thickness',
-            'CST': 'retina_thickness',
-            'HRV': 'hrv',
-            'HeartRateVar': 'hrv'
+            'BMI': 'gfr', # Proxy: BMI as load on kidneys for demo visualization
+            'Age': 'retina_thickness', # Proxy: Age correlated with retinal changes
+            'BloodPressure': 'hrv', # Proxy: BP inverse to HRV (simplified)
+            'SkinThickness': 'nerve', # Proxy: Skin thickness ~ peripheral nerve health
         }
         
-        self.required_columns = ['glucose', 'gfr', 'retina_thickness', 'hrv']
+        self.required_columns = ['glucose', 'gfr', 'retina_thickness', 'hrv', 'nerve']
 
     def load_data(self):
         """Loads data from CSV or falls back to simulation."""
@@ -33,23 +31,29 @@ class RealWorldDataLoader:
             # Normalize columns
             df.rename(columns=self.column_mapping, inplace=True)
             
+            # Normalization / Scaling for the "Organ Holodeck" Visuals
+            # The visualization expects values roughly:
+            # Glucose: 70-180 (Normal range) -> Pima is raw, so okay.
+            # GFR: 90 is healthy. Pima BMI is ~30. We multiply by 3 to simulate GFR-like scale.
+            # Retina: 250 is healthy. Pima Age is ~30-50. We multiply by 5.
+            # HRV: 50 is healthy. Pima BP is ~70. We keep as is or scale slightly.
+            
+            if 'gfr' in df.columns:
+                df['gfr'] = df['gfr'] * 3 # Scale BMI 30 -> 90
+            
+            if 'retina_thickness' in df.columns:
+                df['retina_thickness'] = df['retina_thickness'] * 5 + 100 # Scale Age 30 -> 250
+                
             # Hybrid Mode: Fill missing columns with simulation
             # We generate a baseline simulation of the same length
             sim_baseline = self.simulator.generate_healthy_baseline()
             
-            # If CSV is shorter/longer, we might need to adjust logic. 
-            # For now, let's assume we treat the CSV as the "truth" for the days it has.
-            
             for col in self.required_columns:
                 if col not in df.columns:
-                    print(f"Warning: '{col}' missing in CSV. Imputing from simulation.")
-                    # If CSV has 'day' or index, use it. If not, assume daily rows.
-                    # We'll take the first N rows from simulator where N = len(df)
+                    # print(f"Warning: '{col}' missing in CSV. Imputing from simulation.")
                     if len(df) <= len(sim_baseline):
                         df[col] = sim_baseline[col].iloc[:len(df)].values
                     else:
-                        # Extrapolate or repeat simulation? 
-                        # Simplest pattern: Repeat simulation to fill length
                         extras = len(df) - len(sim_baseline)
                         extended_sim = pd.concat([sim_baseline]*((len(df)//len(sim_baseline))+1))
                         df[col] = extended_sim[col].iloc[:len(df)].values
