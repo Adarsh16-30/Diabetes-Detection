@@ -3,9 +3,7 @@
 import { useEffect, useState, useRef } from 'react';
 import Scene from '../components/Scene';
 import HUD from '../components/HUD';
-import Snitch from '../components/Snitch';
-import Antigravity from '../components/Antigravity';
-
+import { StitchLayout, StitchCard } from '../components/StitchUI';
 import { AnimatePresence, motion } from 'framer-motion';
 
 export default function Home() {
@@ -85,13 +83,8 @@ export default function Home() {
     };
 
     return (
-        <main className="w-full h-screen bg-black overflow-hidden relative">
-
-
+        <StitchLayout>
             <Scene vitals={vitals} drifts={drifts} onOrganClick={(organ) => console.log(organ)} />
-
-            <Snitch alert={alert} />
-            <Antigravity processing={processing} />
 
             <AnimatePresence>
                 {alert && (
@@ -120,39 +113,36 @@ export default function Home() {
 
             <AnimatePresence>
                 {alert && ragContext && (
-                    <motion.div
-                        initial={{ opacity: 0, scale: 0.8, y: 50 }}
-                        animate={{ opacity: 1, scale: 1, y: 0 }}
-                        exit={{ opacity: 0, scale: 0.8 }}
-                        className="absolute bottom-10 right-10 w-[30rem] bg-black/80 backdrop-blur-xl border border-cyan-500/50 rounded-2xl p-6 shadow-[0_0_50px_rgba(0,255,255,0.2)] z-50"
-                    >
-                        <div className="flex justify-between items-start mb-4">
-                            <div>
-                                <h2 className="text-xl font-bold text-cyan-400">CAUSAL PROPAGATION DETECTED</h2>
-                                <p className="text-xs text-cyan-200/70 font-mono mt-1">AI AGENT: DIAGNOSTIC COUNCIL</p>
-                            </div>
-                            <button onClick={() => setAlert(null)} className="text-gray-400 hover:text-white">x</button>
-                        </div>
-
-                        <div className="space-y-4">
-                            <div className="bg-cyan-900/20 p-3 rounded border-l-2 border-cyan-500">
-                                <p className="text-sm text-gray-300">{ragContext.explanation}</p>
+                    <div className="absolute bottom-10 right-10 z-50">
+                        <StitchCard className="w-[30rem] border-cyan-500/50">
+                            <div className="flex justify-between items-start mb-4">
+                                <div>
+                                    <h2 className="text-xl font-bold text-cyan-400">CAUSAL PROPAGATION DETECTED</h2>
+                                    <p className="text-xs text-cyan-200/70 font-mono mt-1">AI AGENT: DIAGNOSTIC COUNCIL</p>
+                                </div>
+                                <button onClick={() => setAlert(null)} className="text-gray-400 hover:text-white transition-colors">x</button>
                             </div>
 
-                            <div className="grid grid-cols-2 gap-2 text-xs">
-                                <div className="bg-white/5 p-2 rounded">
-                                    <span className="text-gray-400 block mb-1">SIMILAR CASE</span>
-                                    <span className="text-white font-mono">{ragContext.similar_case?.outcome || "Analyzing..."}</span>
+                            <div className="space-y-4">
+                                <div className="bg-cyan-900/20 p-3 rounded border-l-2 border-cyan-500">
+                                    <p className="text-sm text-gray-300">{ragContext.explanation}</p>
                                 </div>
-                                <div className="bg-white/5 p-2 rounded">
-                                    <span className="text-gray-400 block mb-1">SOURCE</span>
-                                    <span className="text-white font-mono italic truncate">{ragContext.source?.title}</span>
+
+                                <div className="grid grid-cols-2 gap-2 text-xs">
+                                    <div className="bg-white/5 p-2 rounded">
+                                        <span className="text-gray-400 block mb-1">SIMILAR CASE</span>
+                                        <span className="text-white font-mono">{ragContext.similar_case?.outcome || "Analyzing..."}</span>
+                                    </div>
+                                    <div className="bg-white/5 p-2 rounded">
+                                        <span className="text-gray-400 block mb-1">SOURCE</span>
+                                        <span className="text-white font-mono italic truncate">{ragContext.source?.title}</span>
+                                    </div>
                                 </div>
                             </div>
-                        </div>
-                    </motion.div>
+                        </StitchCard>
+                    </div>
                 )}
             </AnimatePresence>
-        </main>
+        </StitchLayout>
     );
 }

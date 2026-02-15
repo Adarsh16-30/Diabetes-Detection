@@ -90,7 +90,7 @@ if st.button("Run Simulation Step-by-Step"):
         
         # 4. RAG
         context = council.rag.retrieve_context(current_drifts.numpy())
-        with st.expander("📚 Causal RAG Explanation", expanded=True):
+        with st.expander("Causal RAG Explanation", expanded=True):
             st.markdown(f"**Similar Case Found:** Patient {context['similar_case']['patient_id']}")
             st.markdown(f"**Outcome:** {context['similar_case']['outcome']}")
             st.markdown("---")
