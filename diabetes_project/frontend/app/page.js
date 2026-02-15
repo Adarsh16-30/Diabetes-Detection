@@ -3,10 +3,11 @@
 import { useEffect, useState, useRef } from 'react';
 import Scene from '../components/Scene';
 import HUD from '../components/HUD';
-import { StitchLayout, StitchCard } from '../components/StitchUI';
+import { StitchLayout, StitchCard, ThemeToggle } from '../components/StitchUI';
 import { AnimatePresence, motion } from 'framer-motion';
 
 export default function Home() {
+    const [theme, setTheme] = useState('dark');
     const [vitals, setVitals] = useState({ gfr: 90, retina: 250, hrv: 50 });
     const [drifts, setDrifts] = useState({ kidney: 0, heart: 0, retina: 0 });
     const [blockchain, setBlockchain] = useState([]);
@@ -83,7 +84,11 @@ export default function Home() {
     };
 
     return (
-        <StitchLayout>
+        <StitchLayout theme={theme}>
+            <div className="absolute top-6 right-6 z-50">
+                <ThemeToggle theme={theme} toggleTheme={() => setTheme(prev => prev === 'dark' ? 'light' : 'dark')} />
+            </div>
+
             <Scene vitals={vitals} drifts={drifts} onOrganClick={(organ) => console.log(organ)} />
 
             <AnimatePresence>
