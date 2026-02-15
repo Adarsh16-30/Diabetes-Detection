@@ -14,9 +14,9 @@ def download_data():
         with open(OUTPUT_PATH, "wb") as f:
             f.write(response.content)
             
-        print(f"✅ Dataset saved to {OUTPUT_PATH}")
+        print(f"Dataset saved to {OUTPUT_PATH}")
     except Exception as e:
-        print(f"❌ Failed to download dataset: {e}")
+        print(f"Failed to download dataset: {e}")
 
 if __name__ == "__main__":
     download_data()

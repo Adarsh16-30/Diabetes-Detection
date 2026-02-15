@@ -14,7 +14,7 @@ export default function Home() {
     const [blockchain, setBlockchain] = useState([]);
     const [alert, setAlert] = useState(null);
     const [ragContext, setRagContext] = useState(null);
-    const [processing, setProcessing] = useState(false); // For Antigravity UI
+    const [processing, setProcessing] = useState(false);
 
 
     const ws = useRef(null);
@@ -90,17 +90,15 @@ export default function Home() {
 
             <Scene vitals={vitals} drifts={drifts} onOrganClick={(organ) => console.log(organ)} />
 
-            {/* AI Agents Layer */}
             <Snitch alert={alert} />
             <Antigravity processing={processing} />
 
-            {/* Connection Beam (Conditional) */}
             <AnimatePresence>
                 {alert && (
                     <svg className="absolute inset-0 w-full h-full pointer-events-none z-40">
                         <motion.line
-                            x1="10%" y1="10%" // Adjust based on Antigravity position
-                            x2="90%" y2="10%" // Adjust based on Snitch position
+                            x1="10%" y1="10%"
+                            x2="90%" y2="10%"
                             initial={{ pathLength: 0, opacity: 0 }}
                             animate={{ pathLength: 1, opacity: 1 }}
                             exit={{ opacity: 0 }}
@@ -120,7 +118,6 @@ export default function Home() {
 
             <HUD vitals={vitals} drifts={drifts} blockchain={blockchain} />
 
-            {/* RAG Context Popup */}
             <AnimatePresence>
                 {alert && ragContext && (
                     <motion.div

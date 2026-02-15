@@ -5,30 +5,20 @@ import os
 from diabetes_project.blockchain.zk_proof import ZKVerifier
 
 CHAIN_FILE = "diabetes_project/blockchain/chain.json"
-DIFFICULTY = 4  # Number of leading zeros required for PoW
+DIFFICULTY = 4
 
 class HealthBlock:
     def __init__(self, index, data, previous_hash, nonce=0, hash=None, timestamp=None):
         self.index = index
         self.timestamp = timestamp if timestamp else time.time()
-        self.data = data # Dictionary containing model update hash or alert details
+        self.data = data
         self.previous_hash = previous_hash
         self.nonce = nonce
         self.hash = hash if hash else self.compute_hash()
 
     def compute_hash(self):
-        # Include nonce in hash calculation
-        block_string = json.dumps(self.__dict__, sort_keys=True)
-        return hashlib.sha256(block_string.encode()).hexdigest()
-
-    def mine_block(self, difficulty):
-        target = "0" * difficulty
         while self.hash[:difficulty] != target:
             self.nonce += 1
-            # Recompute hash with new nonce
-            # Optimization: We only need to re-hash the changing part, but for simplicity we re-dump
-            # To avoid infinite recursion or complex logic in compute_hash, we construct the string manually here or just rely on compute_hash
-            # simpler approach:
             self.hash = self.compute_hash()
             
         print(f"Block Mined! Nonce: {self.nonce}, Hash: {self.hash}")
@@ -71,7 +61,6 @@ class BlockchainLedger:
         @staticmethod
         def execute(data):
             if data.get("event") == "Drift Alert":
-                # Logic: If drift > 0.8, automatically trigger a 'SeverityEscalation' event
                 if data.get("error", 0) > 0.8:
                     print("Smart Contract Triggered: High Severity Drift Detected. Auto-Escalating.")
                     return {"contract_action": "ESCALATE_TO_SPECIALIST", "reason": "Severe Drift > 0.8"}
@@ -92,11 +81,9 @@ class BlockchainLedger:
                 print(f"Block Rejected: {msg}")
                 return None
             
-            # Store proof in the block
             data["zk_proof"] = proof
             print("ZK-Proof Verified. Committing Block...")
 
-        # Execute Smart Contract Logic
         contract_result = self.SmartContract.execute(data)
         if contract_result:
             data["smart_contract_execution"] = contract_result

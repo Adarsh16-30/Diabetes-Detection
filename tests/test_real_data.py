@@ -17,7 +17,7 @@ def test_loader():
     assert len(df) > 0, "Dataframe is empty"
     assert 'glucose' in df.columns, "Glucose column missing"
     assert 'gfr' in df.columns, "GFR column missing"
-    print(f"✅ Loader success! Shape: {df.shape}")
+    print(f"Loader success! Shape: {df.shape}")
     print(df.head())
 
 def test_council_integration():
@@ -39,7 +39,7 @@ def test_council_integration():
     print(f"Client Monitoring Data Length: {client_data_len}")
     
     assert client_data_len > 0, "Client has no monitoring data"
-    print("✅ Council Integration success!")
+    print("Council Integration success!")
 
 if __name__ == "__main__":
     test_loader()
