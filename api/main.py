@@ -2,6 +2,7 @@ from fastapi import FastAPI, WebSocket, WebSocketDisconnect, UploadFile, File
 from fastapi.middleware.cors import CORSMiddleware
 import json
 import asyncio
+import hashlib
 import sys
 from pathlib import Path
 import torch
@@ -136,14 +137,15 @@ async def analyze_patient(patient_id: str):
         ])
         predictions = council.graph_model(current_drifts)
         
-        # 4. Ledger 
-        zk_proof = None
+        # 4. Audit event identifier
+        # Historical analysis is read-only. Persisting and mining one block per
+        # row makes repeated dashboard requests unnecessarily slow.
         block_hash = "0"
         if is_drift:
              status_payload = {"day": day, "error": drift_error, "msg": "Drift Detected"}
-             zk_proof = zk_prover.generate_proof({"gfr_decay": 0.5}, f"hash_{day}_{patient_id}")
-             block = council.ledger.add_block(status_payload, proof=zk_proof)
-             block_hash = block.hash
+             block_hash = hashlib.sha256(
+                 json.dumps(status_payload, sort_keys=True).encode()
+             ).hexdigest()
         
         # Collect Data Point
         history.append({
@@ -169,6 +171,17 @@ async def analyze_patient(patient_id: str):
     # Calculate Aggregate Metrics
     mse = total_drift_error / data_len if data_len > 0 else 0
     risk_score = (anomalies / data_len) * 100 if data_len > 0 else 0
+
+    drift_errors = np.asarray([item["drift_error"] for item in history], dtype=float)
+    if len(drift_errors) > 1:
+        time_steps = np.arange(len(drift_errors), dtype=float)
+        drift_velocity = float(np.polyfit(time_steps, drift_errors, 1)[0])
+        volatility_index = float(np.std(drift_errors))
+    else:
+        drift_velocity = 0.0
+        volatility_index = 0.0
+    drift_velocity = max(0.0, drift_velocity)
+    recovery_potential = max(0.0, min(100.0, 100.0 * (1.0 - min(1.0, mse))))
     
     # Advanced Metrics Calculation
     
@@ -198,7 +211,6 @@ async def analyze_patient(patient_id: str):
     cascading_risk_score = (cascading_events / data_len) * 100 if data_len else 0
 
     # 5. Lyapunov Exponent
-    drift_errors = [h['drift_error'] for h in history]
     if len(drift_errors) > 10:
         log_drifts = np.log(np.array(drift_errors) + 1e-6) 
         time_steps = np.arange(len(drift_errors))
