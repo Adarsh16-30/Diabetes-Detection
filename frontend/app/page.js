@@ -157,7 +157,7 @@ function AnalysisDashboard({ data, patientId, onRefresh, loading }) {
     const riskScore = Number(summary.risk_score || 0);
 
     return (
-        <div className="dashboard-shell">
+        <div className="dashboard-shell" id="overview">
             <header className="page-heading">
                 <div>
                     <div className="breadcrumb">Patients <ChevronRight size={14} /> {patientId}</div>
@@ -254,7 +254,7 @@ function AnalysisDashboard({ data, patientId, onRefresh, loading }) {
                     </div>
                 </section>
 
-                <section className="panel panel-wide">
+                <section className="panel panel-wide" id="analysis">
                     <SectionHeader eyebrow="Causal analysis" title="Systemic risk map" detail="Relative propagation risk across modeled organ systems" />
                     <div className="split-visual">
                         <div className="chart-radar">
@@ -302,7 +302,7 @@ function AnalysisDashboard({ data, patientId, onRefresh, loading }) {
                     </div>
                 </section>
 
-                <section className="panel">
+                <section className="panel" id="evidence">
                     <SectionHeader eyebrow="Retrieved evidence" title="Clinical context" />
                     <div className="evidence-card">
                         <div className="evidence-label">Similar patient profile</div>
@@ -332,6 +332,7 @@ export default function Home() {
     const [uploading, setUploading] = useState(false);
     const [error, setError] = useState("");
     const [mobileNav, setMobileNav] = useState(false);
+    const [activeSection, setActiveSection] = useState("overview");
 
     const runAnalysis = async (id) => {
         setLoading(true);
@@ -352,6 +353,13 @@ export default function Home() {
         if (!normalized) return;
         setPatientId(normalized);
         runAnalysis(normalized);
+    };
+
+    const navigateTo = (section) => (event) => {
+        event.preventDefault();
+        setActiveSection(section);
+        setMobileNav(false);
+        document.getElementById(section)?.scrollIntoView({ behavior: "smooth", block: "start" });
     };
 
     const handleUpload = async (event) => {
@@ -411,9 +419,9 @@ export default function Home() {
                 <div className="sidebar-brand"><div className="brand-mark small">D</div><div><strong>Diabetes<br />Detection</strong><span>Clinical workspace</span></div><button className="mobile-close" onClick={() => setMobileNav(false)}><X size={18} /></button></div>
                 <div className="sidebar-section-label">Workspace</div>
                 <nav className="sidebar-nav">
-                    <a className="active" href="#overview"><LayoutDashboard size={17} />Overview</a>
-                    <a href="#analysis"><BarChart3 size={17} />Patient analysis</a>
-                    <a href="#evidence"><FileText size={17} />Evidence review</a>
+                    <a className={activeSection === "overview" ? "active" : ""} href="#overview" onClick={navigateTo("overview")}><LayoutDashboard size={17} />Overview</a>
+                    <a className={activeSection === "analysis" ? "active" : ""} href="#analysis" onClick={navigateTo("analysis")}><BarChart3 size={17} />Patient analysis</a>
+                    <a className={activeSection === "evidence" ? "active" : ""} href="#evidence" onClick={navigateTo("evidence")}><FileText size={17} />Evidence review</a>
                 </nav>
                 <div className="sidebar-section-label">Patient</div>
                 <div className="patient-switcher"><div className="patient-avatar">P</div><div><strong>{patientId}</strong><span>Active record</span></div><ChevronRight size={15} /></div>
