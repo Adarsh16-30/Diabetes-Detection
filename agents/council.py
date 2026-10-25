@@ -18,6 +18,7 @@ class DiagnosticCouncil:
             self.loader = RealWorldDataLoader(patient_id, csv_path="data/samples/patient_data.csv")
             self.data = self.loader.load_data()
             self.sim = self.loader.simulator 
+            self.sim.data = self.data
         else:
             print("[INFO] Mode: Pure Simulation")
             self.sim = PatientDataSimulator(patient_id)
