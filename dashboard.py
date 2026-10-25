@@ -15,7 +15,6 @@ from agents.council import DiagnosticCouncil
 st.set_page_config(
     layout="wide",
     page_title="Neuro-Causal Diabetic Twin",
-    page_icon="🧬",
     initial_sidebar_state="expanded",
 )
 
@@ -149,6 +148,91 @@ def build_causal_graph(predictions):
     return fig
 
 
+def build_risk_radar(predictions):
+    labels = ["Glucose", "Kidney", "Retina", "Heart", "Nerve"]
+    values = [float(predictions.get(label.lower(), 0)) for label in labels]
+    fig = go.Figure(go.Scatterpolar(
+        r=values + [values[0]],
+        theta=labels + [labels[0]],
+        fill="toself",
+        line={"color": "#38bdf8", "width": 2},
+        fillcolor="rgba(56, 189, 248, .22)",
+        name="Current risk",
+    ))
+    fig.update_layout(
+        height=360, template="plotly_dark", showlegend=False,
+        polar={
+            "radialaxis": {"visible": True, "range": [0, 1], "tickformat": ".0%"},
+            "angularaxis": {"gridcolor": "#334155"},
+            "bgcolor": "rgba(15,23,42,.45)",
+        },
+        margin={"l": 40, "r": 40, "t": 25, "b": 25},
+        paper_bgcolor="rgba(0,0,0,0)",
+    )
+    return fig
+
+
+def build_distribution_chart(data):
+    metrics = [
+        ("glucose", "Glucose", "#38bdf8"),
+        ("gfr", "Kidney GFR", "#34d399"),
+        ("hrv", "Heart HRV", "#c084fc"),
+    ]
+    fig = make_subplots(rows=1, cols=3, subplot_titles=[item[1] for item in metrics])
+    for index, (column, name, color) in enumerate(metrics, start=1):
+        if column in data:
+            fig.add_trace(
+                go.Histogram(x=data[column], marker_color=color, opacity=.85, name=name),
+                row=1, col=index,
+            )
+    fig.update_layout(
+        height=300, template="plotly_dark", showlegend=False, bargap=.08,
+        margin={"l": 25, "r": 20, "t": 45, "b": 35},
+        paper_bgcolor="rgba(0,0,0,0)", plot_bgcolor="rgba(15,23,42,.45)",
+    )
+    return fig
+
+
+def patient_analysis(data, row, result, predictions):
+    specs = {
+        "Glucose": ("glucose", "mg/dL", 70, 140, "Higher values can indicate glycemic instability."),
+        "Kidney GFR": ("gfr", "mL/min", 60, 90, "Lower values indicate reduced kidney-function proxy."),
+        "Retina thickness": ("retina_thickness", "µm", 220, 280, "Deviation from the local baseline is monitored."),
+        "Heart HRV": ("hrv", "ms", 30, 70, "Lower variability can indicate autonomic stress."),
+        "SpO2": ("spo2", "%", 94, 100, "Peripheral oxygen saturation proxy."),
+        "Skin temperature": ("skin_temp", "°C", 32, 35, "Peripheral temperature proxy."),
+    }
+    rows = []
+    for label, (column, unit, low, high, interpretation) in specs.items():
+        if column not in data:
+            continue
+        value = float(row.get(column, 0))
+        baseline = float(data[column].iloc[: max(1, len(data) // 2)].mean())
+        delta = value - baseline
+        if low <= value <= high:
+            status = "Within reference band"
+        else:
+            status = "Review required"
+        rows.append({
+            "Metric": label,
+            "Current": f"{value:.1f} {unit}",
+            "Baseline": f"{baseline:.1f} {unit}",
+            "Change": f"{delta:+.1f} {unit}",
+            "Status": status,
+            "Interpretation": interpretation,
+        })
+    analysis = pd.DataFrame(rows)
+    alert_count = int(sum(event["severity"] == "High" for event in st.session_state.events))
+    highest = max(predictions, key=predictions.get)
+    summary = {
+        "observations": len(data),
+        "alerts": alert_count,
+        "highest_risk": f"{highest.title()} ({predictions[highest]:.0%})",
+        "drift_score": float(result.get("error", 0)),
+    }
+    return analysis, summary
+
+
 def add_event(day, result, block=None):
     event = {
         "timestamp": datetime.now().strftime("%H:%M:%S"),
@@ -165,7 +249,7 @@ def add_event(day, result, block=None):
 init_state()
 
 with st.sidebar:
-    st.markdown("## 🧬 Twin Control Center")
+    st.markdown("## Twin Control Center")
     st.caption("Personalized diabetes monitoring workspace")
     patient_id = st.text_input("Patient ID", value=st.session_state.council.client.patient_id)
     data_mode = st.selectbox("Data source", ["Hybrid real-world CSV", "Synthetic simulation"])
@@ -176,7 +260,7 @@ with st.sidebar:
     st.divider()
     st.markdown("### Monitoring controls")
     step_size = st.slider("Days per step", min_value=1, max_value=10, value=1)
-    if st.button("▶ Run monitoring step", type="primary", use_container_width=True):
+    if st.button("Run monitoring step", type="primary", use_container_width=True):
         council = st.session_state.council
         result = council.client.monitor(st.session_state.day)
         block = council.ledger.add_block(result) if result.get("alert") else None
@@ -193,9 +277,9 @@ with st.sidebar:
         st.rerun()
     st.divider()
     st.markdown("### System health")
-    st.success("● Data pipeline online")
-    st.success("● Federated node trained")
-    st.success("● Ledger available")
+    st.success("Data pipeline online")
+    st.success("Federated node trained")
+    st.success("Ledger available")
     st.caption(f"Last refresh: {datetime.now().strftime('%d %b %Y, %H:%M:%S')}")
 
 council = st.session_state.council
@@ -229,7 +313,9 @@ for col, (label, value, unit, _) in zip(metric_cols, latest_values):
         st.metric(label, f"{float(value):.1f}", unit)
 
 st.divider()
-tab_overview, tab_causal, tab_audit = st.tabs(["📈 Vitals overview", "🧠 Causal intelligence", "🔐 Audit & evidence"])
+tab_overview, tab_analysis, tab_causal, tab_audit = st.tabs(
+    ["Vitals overview", "Patient analysis", "Causal intelligence", "Audit and evidence"]
+)
 
 with tab_overview:
     left, right = st.columns([2.1, 1])
@@ -258,6 +344,38 @@ with tab_overview:
         st.metric("Learned drift threshold", f"{threshold_value:.4f}", "MSE")
         st.metric("Monitoring events", len(events))
 
+with tab_analysis:
+    analysis_table, analysis_summary = patient_analysis(council.data, row, result, predictions)
+    st.subheader("Patient-specific analysis")
+    st.caption("Current observations compared with the patient's learned baseline and prototype reference bands.")
+    summary_cols = st.columns(4)
+    with summary_cols[0]:
+        st.metric("Observations analyzed", f"{analysis_summary['observations']:,}")
+    with summary_cols[1]:
+        st.metric("High-severity alerts", analysis_summary["alerts"])
+    with summary_cols[2]:
+        st.metric("Highest modeled risk", analysis_summary["highest_risk"])
+    with summary_cols[3]:
+        st.metric("Current drift score", f"{analysis_summary['drift_score']:.4f}")
+    st.dataframe(analysis_table, use_container_width=True, hide_index=True)
+    st.subheader("Patient signal distributions")
+    st.plotly_chart(build_distribution_chart(council.data), use_container_width=True)
+    st.subheader("Relative risk profile")
+    radar_col, notes_col = st.columns([1, 1])
+    with radar_col:
+        st.plotly_chart(build_risk_radar(predictions), use_container_width=True)
+    with notes_col:
+        st.markdown("#### Analysis notes")
+        st.write(
+            "The table compares the selected observation with the first half of the loaded "
+            "patient record as a local baseline. Reference bands are prototype thresholds "
+            "for demonstration and are not clinical diagnostic ranges."
+        )
+        if result.get("alert"):
+            st.error("The latest monitored observation exceeded the learned drift threshold.")
+        else:
+            st.success("The latest monitored observation did not exceed the learned drift threshold.")
+
 with tab_causal:
     graph_col, explanation_col = st.columns([1.25, 1])
     with graph_col:
@@ -270,8 +388,8 @@ with tab_causal:
         st.info(f"Highest modeled risk: **{highest.title()} ({predictions[highest]:.0%})**")
         st.markdown(
             "- **Glucose** is treated as a source signal.\n"
-            "- **Kidney → Heart** is a constrained propagation pathway.\n"
-            "- **Glucose → Retina** is used as a retinal plausibility rule.\n"
+            "- **Kidney to Heart** is a constrained propagation pathway.\n"
+            "- **Glucose to Retina** is used as a retinal plausibility rule.\n"
             "- Values are prototype risk scores, not clinical probabilities."
         )
         if st.session_state.last_context:
