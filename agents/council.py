@@ -2,12 +2,12 @@ import torch
 import numpy as np
 import json
 import time
-from diabetes_project.data.patient_simulator import PatientDataSimulator
-from diabetes_project.data.loader import RealWorldDataLoader
-from diabetes_project.federated.client import FederatedClient
-from diabetes_project.blockchain.ledger import BlockchainLedger
-from diabetes_project.models.propagation_graph import CausalOrganGraph
-from diabetes_project.rag.rag_engine import MultimodalRAG
+from data.patient_simulator import PatientDataSimulator
+from data.loader import RealWorldDataLoader
+from federated.client import FederatedClient
+from blockchain.ledger import BlockchainLedger
+from models.propagation_graph import CausalOrganGraph
+from rag.rag_engine import MultimodalRAG
 
 class DiagnosticCouncil:
     def __init__(self, patient_id, use_real_data=True):
@@ -15,7 +15,7 @@ class DiagnosticCouncil:
         
         if use_real_data:
             print("[INFO] Mode: Real-World Data (Hybrid Injection)")
-            self.loader = RealWorldDataLoader(patient_id, csv_path="diabetes_project/data/samples/patient_data.csv")
+            self.loader = RealWorldDataLoader(patient_id, csv_path="data/samples/patient_data.csv")
             self.data = self.loader.load_data()
             self.sim = self.loader.simulator 
         else:

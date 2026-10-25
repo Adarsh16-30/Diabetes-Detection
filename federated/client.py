@@ -1,7 +1,7 @@
 import torch
 import numpy as np
 import pandas as pd
-from diabetes_project.models.drift_detector import DriftDetector
+from models.drift_detector import DriftDetector
 
 class FederatedClient:
     def __init__(self, patient_id, data_simulator):
@@ -77,7 +77,7 @@ class FederatedClient:
         return self.detector.get_weights()
 
 if __name__ == "__main__":
-    from diabetes_project.data.patient_simulator import PatientDataSimulator
+    from data.patient_simulator import PatientDataSimulator
     
     sim = PatientDataSimulator("P001")
     # Inject drift starting day 150

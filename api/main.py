@@ -9,9 +9,9 @@ import io
 from typing import List
 
 # ... imports ...
-from diabetes_project.agents.council import DiagnosticCouncil
-from diabetes_project.api.models import ExplanationRequest
-from diabetes_project.blockchain.zk_proof import ZKProver
+from agents.council import DiagnosticCouncil
+from api.models import ExplanationRequest
+from blockchain.zk_proof import ZKProver
 
 app = FastAPI(title="Neuro-Causal Diabetic API")
 

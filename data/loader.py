@@ -1,7 +1,7 @@
 import pandas as pd
 import numpy as np
 import os
-from diabetes_project.data.patient_simulator import PatientDataSimulator
+from data.patient_simulator import PatientDataSimulator
 
 class RealWorldDataLoader:
     def __init__(self, patient_id, csv_path=None):
@@ -73,6 +73,6 @@ class RealWorldDataLoader:
 
 if __name__ == "__main__":
     # Test
-    loader = RealWorldDataLoader("P001", "diabetes_project/data/samples/patient_data.csv")
+    loader = RealWorldDataLoader("P001", "data/samples/patient_data.csv")
     df = loader.load_data()
     print(df.head())

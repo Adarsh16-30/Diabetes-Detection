@@ -2,9 +2,9 @@ import json
 import time
 import hashlib
 import os
-from diabetes_project.blockchain.zk_proof import ZKVerifier
+from blockchain.zk_proof import ZKVerifier
 
-CHAIN_FILE = "diabetes_project/blockchain/chain.json"
+CHAIN_FILE = "blockchain/chain.json"
 DIFFICULTY = 4
 
 class HealthBlock:
@@ -126,4 +126,3 @@ if __name__ == "__main__":
     
     print(f"Chain valid? {ledger.verify_chain()}")
     print([block.data for block in ledger.chain])
-

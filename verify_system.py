@@ -1,19 +1,19 @@
 import os
 import json
-from diabetes_project.blockchain.ledger import BlockchainLedger
-from diabetes_project.data.loader import RealWorldDataLoader
+from blockchain.ledger import BlockchainLedger
+from data.loader import RealWorldDataLoader
 
 def verify():
     print("Starting System Verification...")
     
     # 1. Verify Data
     # 1. Verify Data
-    if os.path.exists("diabetes_project/data/samples/patient_data.csv"):
+    if os.path.exists("data/samples/patient_data.csv"):
         print("Pima Dataset found.")
     else:
         print("Pima Dataset MISSING!")
         
-    loader = RealWorldDataLoader("P001", "diabetes_project/data/samples/patient_data.csv")
+    loader = RealWorldDataLoader("P001", "data/samples/patient_data.csv")
     data = loader.load_data()
     if data is not None and not data.empty:
         print(f"Data Loaded. Shape: {data.shape}")

@@ -4,13 +4,13 @@ import pandas as pd
 # Add project root to path
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '../..')))
 
-from diabetes_project.data.loader import RealWorldDataLoader
-from diabetes_project.federated.client import FederatedClient
-from diabetes_project.agents.council import DiagnosticCouncil
+from data.loader import RealWorldDataLoader
+from federated.client import FederatedClient
+from agents.council import DiagnosticCouncil
 
 def test_loader():
     print("Testing RealWorldDataLoader...")
-    loader = RealWorldDataLoader("P001", "diabetes_project/data/samples/patient_data.csv")
+    loader = RealWorldDataLoader("P001", "data/samples/patient_data.csv")
     df = loader.load_data()
     
     assert df is not None, "Dataframe is None"

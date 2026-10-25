@@ -4,7 +4,7 @@ import numpy as np
 import plotly.graph_objects as go
 import time
 import torch
-from diabetes_project.agents.council import DiagnosticCouncil
+from agents.council import DiagnosticCouncil
 
 st.set_page_config(layout="wide", page_title="Neuro-Causal Diabetic Twin")
 

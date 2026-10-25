@@ -1,6 +1,6 @@
 import torch
 import numpy as np
-from diabetes_project.models.drift_detector import DriftDetector
+from models.drift_detector import DriftDetector
 
 class FederatedServer:
     def __init__(self):

@@ -2,7 +2,7 @@ import requests
 import os
 
 URL = "https://raw.githubusercontent.com/npradaschnor/Pima-Indians-Diabetes-Dataset/master/diabetes.csv"
-OUTPUT_PATH = "diabetes_project/data/samples/patient_data.csv"
+OUTPUT_PATH = "data/samples/patient_data.csv"
 
 def download_data():
     print(f"Downloading Pima Indians Diabetes Dataset from {URL}...")
