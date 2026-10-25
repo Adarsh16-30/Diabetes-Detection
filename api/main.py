@@ -2,11 +2,18 @@ from fastapi import FastAPI, WebSocket, WebSocketDisconnect, UploadFile, File
 from fastapi.middleware.cors import CORSMiddleware
 import json
 import asyncio
+import sys
+from pathlib import Path
 import torch
 import pandas as pd
 import numpy as np
 import io
 from typing import List
+
+# Keep direct execution (`python api/main.py`) equivalent to module execution.
+PROJECT_ROOT = Path(__file__).resolve().parent.parent
+if str(PROJECT_ROOT) not in sys.path:
+    sys.path.insert(0, str(PROJECT_ROOT))
 
 # ... imports ...
 from agents.council import DiagnosticCouncil
